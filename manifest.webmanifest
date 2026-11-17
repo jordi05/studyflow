@@ -1,0 +1,13 @@
+{
+  "name": "StudyFlow - horario, apuntes y pomodoro",
+  "short_name": "StudyFlow",
+  "description": "Organiza tu horario, tus apuntes y tus pomodoros en un solo sitio.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#070a09",
+  "theme_color": "#070a09",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
