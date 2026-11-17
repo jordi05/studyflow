@@ -192,6 +192,11 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .th-hex{display:flex;gap:8px}
 .th-hex input{flex:1;font-family:var(--mono)}
 
+.th-row{display:flex;align-items:center;gap:10px;margin-top:8px}
+.th-row>span{width:104px;font-size:12px;color:var(--mut);flex:0 0 auto}
+.th-row .swatches{display:flex;gap:6px;flex:1;flex-wrap:wrap}
+.th-row input{width:76px;padding:6px 8px;font-size:12px;font-family:var(--mono)}
+#th-reset{margin-top:12px;width:auto;font-size:13px;padding:9px 14px;align-self:flex-start}
 /* ---------- horario móvil ---------- */
 .cal-m{display:none}
 
@@ -222,7 +227,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
   .userbox .uname{display:none}
 }
 </style>
-<script src="theme.js?v=5"></script>
+<script src="theme.js?v=6"></script>
 </head>
 <body>
 
@@ -470,6 +475,15 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
         <input id="th-hex" placeholder="#34d399" maxlength="7">
         <button class="btn" id="th-hex-go" type="button">Aplicar</button>
       </div>
+      <label class="mut" style="font-size:12px;margin-top:6px">Colores de la interfaz</label>
+      <div id="th-ui">
+        <div class="th-row" data-var="bg"><span>Fondo</span><div class="swatches"></div><input maxlength="7" spellcheck="false" autocomplete="off"></div>
+        <div class="th-row" data-var="panel"><span>Tarjetas</span><div class="swatches"></div><input maxlength="7" spellcheck="false" autocomplete="off"></div>
+        <div class="th-row" data-var="txt"><span>Texto</span><div class="swatches"></div><input maxlength="7" spellcheck="false" autocomplete="off"></div>
+        <div class="th-row" data-var="line"><span>Bordes</span><div class="swatches"></div><input maxlength="7" spellcheck="false" autocomplete="off"></div>
+        <div class="th-row" data-var="hdr"><span>Barra superior</span><div class="swatches"></div><input maxlength="7" spellcheck="false" autocomplete="off"></div>
+      </div>
+      <button class="btn ghost" id="th-reset" type="button">Restablecer colores</button>
     </div>
     <div class="acts">
       <button class="btn" id="th-close">Listo</button>
@@ -503,6 +517,6 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 
 <script data-goatcounter="https://studyflow.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <script src="sb.js?v=1"></script>
-<script src="app.js?v=7"></script>
+<script src="app.js?v=8"></script>
 </body>
 </html>
