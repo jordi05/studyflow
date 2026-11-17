@@ -209,6 +209,12 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .pe-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--mut);flex-wrap:wrap}
 .pe-row b{color:var(--acc)}
 
+/* ---------- pro ---------- */
+.pro-lock{display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center;padding:16px 10px;font-size:13px;color:var(--txt)}
+.pro-lock .mut{font-size:12px}
+.pe-total{font-family:var(--mono);font-size:12px;color:var(--mut)}
+.pe-total b{color:var(--acc)}
+
 /* ---------- selector fecha/hora ---------- */
 .dt-btn{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;color:var(--txt);font:inherit;text-align:left}
 .dt-btn.ph span:first-child{color:var(--mut)}
@@ -378,6 +384,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
       <div class="view-head">
         <h2>Apuntes</h2>
         <span class="sp"></span>
+        <button class="btn ghost" id="btn-export-notes">Exportar <span class="chip">Pro</span></button>
         <button class="btn ghost" id="btn-sample-notes">Datos de ejemplo</button>
         <button class="btn" id="btn-new-note">+ Nuevo apunte</button>
       </div>
@@ -443,6 +450,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
           <div class="pe-t">últimos 7 días (minutos de enfoque)</div>
           <div class="pchart" id="pchart"></div>
           <div class="pe-row"><span id="pe-streak"></span><span id="pe-best"></span></div>
+        </div>
+        <div class="pomo-extra">
+          <div class="pe-t">este mes, semana a semana <span class="chip">Pro</span></div>
+          <div id="pomo-month-body"></div>
         </div>
         <div class="dur">
           <span class="dur-t">duración (min)</span>
@@ -622,6 +633,6 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 <script data-goatcounter="https://studyflow.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <script src="driver.js?v=1"></script>
 <script src="sb.js?v=1"></script>
-<script src="app.js?v=18"></script>
+<script src="app.js?v=19"></script>
 </body>
-  </html>
+</html>
