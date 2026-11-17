@@ -261,8 +261,8 @@ function maybeStartTour(tries){
   if(!me)return;
   if(localStorage.getItem('sf_tour_v1')==='1'||(data&&data.tourDone))return;
   if(!window.driver||!window.driver.js)return;
-  if(!cloudReady){if((tries||0)<6)setTimeout(()=>maybeStartTour((tries||0)+1),2500);return}
-  if(!$('#overlay-ask').classList.contains('hidden')){if((tries||0)<4)setTimeout(()=>maybeStartTour((tries||0)+1),3000);return}
+  if(!cloudReady){setTimeout(()=>maybeStartTour(0),2500);return}
+  if(!$('#overlay-ask').classList.contains('hidden')){setTimeout(()=>maybeStartTour(0),3000);return}
   const mob=window.matchMedia('(max-width:760px)').matches;
   const steps=[
     {element:mob?'#btn-menu':'#sidenav',view:'horario',popover:{title:'Menú principal',description:mob?'Toca ese botón para abrir el menú y cambiar de sección.':'Desde aquí cambias entre las secciones de la app.'}},
