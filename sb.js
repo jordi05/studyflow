@@ -53,8 +53,13 @@ function sbErrorMsg(data, fallback) {
   return msg || fallback;
 }
 
+/* URL a la que vuelven los enlaces de los emails (confirmacion y recuperacion) */
+function sbRedirectTo() {
+  return location.origin + location.pathname;
+}
+
 async function sbSignup(email, password) {
-  const r = await sbAuthPost('/signup', { email, password });
+  const r = await sbAuthPost('/signup?redirect_to=' + encodeURIComponent(sbRedirectTo()), { email, password });
   if (!r.ok) return { ok: false, error: sbErrorMsg(r.data, 'No se pudo crear la cuenta.') };
   // Con la confirmacion por email desactivada, signup devuelve sesion directa.
   if (r.data && r.data.access_token) {
@@ -79,6 +84,56 @@ async function sbLogin(email, password) {
     user: r.data.user
   });
   return { ok: true, user: r.data.user };
+}
+
+/* Sesion que Supabase deja en el hash al volver de un email (signup o recovery) */
+function sbHashSession() {
+  if (!location.hash || location.hash.length < 2) return null;
+  const p = new URLSearchParams(location.hash.slice(1));
+  const at = p.get('access_token');
+  if (!at) return null;
+  return {
+    access_token: at,
+    refresh_token: p.get('refresh_token') || '',
+    expires_at: Date.now() + (parseInt(p.get('expires_in') || '3600', 10)) * 1000,
+    type: p.get('type') || ''
+  };
+}
+
+async function sbGetUser(token) {
+  try {
+    const res = await fetch(SB_URL + '/auth/v1/user', {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + token }
+    });
+    let data = null;
+    try { data = await res.json(); } catch (e) { data = null; }
+    return res.ok && data && data.id ? data : null;
+  } catch (e) { return null; }
+}
+
+/* Pide un email de recuperacion de contrasena */
+async function sbRecover(email) {
+  const r = await sbAuthPost('/recover?redirect_to=' + encodeURIComponent(sbRedirectTo()), { email });
+  if (!r.ok) return { ok: false, error: sbErrorMsg(r.data, 'No se pudo enviar el correo.') };
+  return { ok: true };
+}
+
+/* Cambia la contrasena con la sesion activa (tras el enlace de recuperacion) */
+async function sbUpdatePassword(newPass) {
+  const s = sbSession();
+  if (!s) return { ok: false, error: 'Sin sesion.' };
+  let res;
+  try {
+    res = await fetch(SB_URL + '/auth/v1/user', {
+      method: 'PUT',
+      headers: { 'apikey': SB_KEY, 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + s.access_token },
+      body: JSON.stringify({ password: newPass })
+    });
+  } catch (e) { return { ok: false, error: 'Sin conexion. Intentalo de nuevo.' }; }
+  let data = null;
+  try { data = await res.json(); } catch (e) { data = null; }
+  if (!res.ok) return { ok: false, error: sbErrorMsg(data, 'No se pudo cambiar la contrasena.') };
+  return { ok: true, user: data };
 }
 
 async function sbRefresh() {
