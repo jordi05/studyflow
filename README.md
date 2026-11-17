@@ -13,6 +13,7 @@ Tema oscuro, funciona en móvil y ordenador, y se puede instalar como app (PWA).
 - **Apuntes**: crea, busca, edita y borra notas. Se guardan solas mientras escribes.
 - **Pomodoro**: enfoque y descansos configurables, contador de sesiones y minutos de enfoque de hoy y de la semana.
 - **Avisos**: notificación al terminar el pomodoro y recordatorios de entregas (10 min, 1 h, 1 día antes o personalizado). Llegan con la app abierta; con la app cerrada solo si la instalas en pantalla de inicio (iPhone: iOS 16.4+), y sin servidor no están garantizados.
+- **Selector de fecha y hora propio**: mini calendario y hora con botones −/+, en tema oscuro, sin los selectores blancos del navegador.
 - **Exportar / importar** tus datos en JSON (tocando tu avatar), para cambiar de dispositivo.
 - **Cuenta demo** de un toque en la pantalla de entrada.
 - **Datos de ejemplo** con un botón, para probarla rápido.
