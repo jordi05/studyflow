@@ -1,4 +1,4 @@
-const C = 'sf-v3';
+const C = 'sf-v4';
 const A = ['./', './index.html', './app.js', './theme.js', './manifest.webmanifest', './icon.svg'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(C).then(c => c.addAll(A)).then(() => self.skipWaiting()));
