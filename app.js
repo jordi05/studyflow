@@ -316,7 +316,7 @@ async function enterCloud(user,isNew){
     await offerMigration();
     cloudReady=true;
   }
-  sbLoadProfile().then(p=>{if(p.ok){isPro=p.pro;renderPomoMonth()}}).catch(()=>{});
+  sbLoadProfile().then(p=>{if(p.ok)isPro=p.pro}).catch(()=>{});
 }
 function findLegacyData(){
   try{
@@ -678,21 +678,6 @@ function seedGrades(){
   save();renderGrades();
 }
 
-/* ---------- pro: exportar apuntes ---------- */
-$('#btn-export-notes').onclick=()=>{
-  if(!isPro){notice('Función Pro','Exportar los apuntes formará parte del plan Pro, que todavía no está activo. Todo lo que ya tienes sigue gratis.');return}
-  if(!data.notes.length){notice('Sin apuntes','Crea algún apunte primero y luego expórtalo.');return}
-  let md='# Apuntes StudyFlow\n\nExportados el '+new Date().toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'})+'\n';
-  [...data.notes].sort((a,b)=>String(a.subject||'').localeCompare(String(b.subject||''))).forEach(n=>{
-    md+='\n---\n\n## '+String(n.title||'Sin título')+'\n';
-    if(n.subject)md+='\n_'+n.subject+'_\n';
-    md+='\n'+String(n.body||'')+'\n';
-  });
-  const blob=new Blob([md],{type:'text/markdown'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download='studyflow-apuntes-'+new Date().toISOString().slice(0,10)+'.md';a.click();URL.revokeObjectURL(a.href);
-};
-
 /* ---------- entregas ---------- */
 function fmtLeft(ms){
   if(ms<0){const d=Math.floor(-ms/86400000);return d>0?'vencida hace '+d+'d':'vencida hoy'}
@@ -853,37 +838,6 @@ function setGoal(v){
 }
 $$('.goal-row .step button').forEach(b=>b.onclick=()=>setGoal((parseInt($('#d-goal').value,10)||0)+(+b.dataset.goal)));
 $('#d-goal').onchange=e=>setGoal(e.target.value);
-function renderPomoMonth(){
-  const body=$('#pomo-month-body');if(!body||!data)return;body.innerHTML='';
-  if(!isPro){
-    const lock=document.createElement('div');lock.className='pro-lock';
-    const t=document.createElement('span');t.textContent='Tu mes de estudio, semana a semana: minutos, pomodoros y media por día activo.';
-    const t2=document.createElement('span');t2.className='mut';t2.textContent='Disponible con el plan Pro (aún no activo). Todo lo que ya tienes sigue gratis.';
-    lock.appendChild(t);lock.appendChild(t2);body.appendChild(lock);return;
-  }
-  const now=new Date(),mk=now.toISOString().slice(0,7);
-  let monthMin=0,monthPomos=0,active=0;
-  Object.keys(data.pomos.mins).forEach(k=>{if(k.indexOf(mk)===0){monthMin+=data.pomos.mins[k]||0;monthPomos+=data.pomos.days[k]||0;if((data.pomos.mins[k]||0)>0)active++}});
-  const weeks=[0,0,0,0];
-  for(let i=0;i<28;i++){const d=new Date();d.setDate(d.getDate()-i);weeks[Math.min(3,Math.floor(i/7))]+=data.pomos.mins[d.toISOString().slice(0,10)]||0}
-  const wrap=document.createElement('div');wrap.className='pchart';
-  const max=Math.max(1,weeks[0],weeks[1],weeks[2],weeks[3]);
-  const labs=['hace 3 sem','hace 2 sem','sem pasada','esta sem'];
-  [3,2,1,0].forEach((w,idx)=>{
-    const v=weeks[w];
-    const col=document.createElement('div');col.className='pc-col'+(w===0?' today':'');
-    const num=document.createElement('span');num.className='pc-val';num.textContent=v||'';
-    const bar=document.createElement('div');bar.className='pc-bar';bar.style.height=Math.max(2,Math.round(v/max*100))+'%';bar.title=v+' min';
-    const lab=document.createElement('span');lab.className='pc-lab';lab.textContent=labs[idx];
-    col.appendChild(num);col.appendChild(bar);col.appendChild(lab);wrap.appendChild(col);
-  });
-  body.appendChild(wrap);
-  const row=document.createElement('div');row.className='pe-row';
-  const left=document.createElement('span');left.className='pe-total';left.textContent='total mes: ';
-  const lb=document.createElement('b');lb.textContent=monthMin+' min';left.appendChild(lb);
-  const right=document.createElement('span');right.className='pe-total';right.textContent=Math.round(monthPomos)+' pomodoros · media '+(active?Math.round(monthMin/active):0)+' min/día activo';
-  row.appendChild(left);row.appendChild(right);body.appendChild(row);
-}
 function renderGoal(){
   const goal=data.settings.goal||0;
   const k=new Date().toISOString().slice(0,10);
@@ -912,7 +866,6 @@ function renderPomoStats(){
   for(;i<400;i++){const d=new Date();d.setDate(d.getDate()-i);if((data.pomos.mins[d.toISOString().slice(0,10)]||0)>0)streak++;else break}
   let best=0,bk='';Object.keys(data.pomos.mins).forEach(k=>{if((data.pomos.mins[k]||0)>best){best=data.pomos.mins[k];bk=k}});
   $('#pe-streak').innerHTML='';const s1=document.createElement('span');s1.textContent='racha: ';const s1b=document.createElement('b');s1b.textContent=streak+(streak===1?' día':' días');s1.appendChild(s1b);$('#pe-streak').appendChild(s1);
-  renderPomoMonth();
   const bb=$('#pe-best');bb.innerHTML='';const b1=document.createElement('span');b1.textContent='mejor día: ';const b1b=document.createElement('b');b1b.textContent=best?(best+' min · '+new Date(bk+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'short'})):'—';b1.appendChild(b1b);bb.appendChild(b1);
 }
 function setDur(m,v){
@@ -985,6 +938,6 @@ if(sbS&&sbS.user){
   me=sbS.user.id;data=store.data(me)||blankData();normalize();
   showApp(sbS.user.email||'');
   sbLoadData().then(r=>{if(r.ok&&r.payload){data=Object.assign(blankData(),r.payload);normalize();store.saveData(me,data);syncSettingsUI();renderAll()}cloudReady=!!r.ok}).catch(()=>{});
-  sbLoadProfile().then(p=>{if(p.ok){isPro=p.pro;renderPomoMonth()}}).catch(()=>{});
+  sbLoadProfile().then(p=>{if(p.ok)isPro=p.pro}).catch(()=>{});
 }
 if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(()=>{})}
