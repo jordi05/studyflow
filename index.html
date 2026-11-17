@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>StudyFlow - horario, apuntes y pomodoro</title>
+<meta name="description" content="Organiza tu horario, tus apuntes y tus pomodoros en un solo sitio.">
+<meta name="theme-color" content="#070a09">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+:root{
+  --bg:#070a09; --panel:#0d1310; --panel2:#111a15; --line:#1c2620;
+  --acc:#34d399; --acc-dim:#1f6f54; --txt:#e7f0ea; --mut:#8aa395; --danger:#f87171;
+  --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,'Segoe UI',Roboto,Inter,sans-serif;font-size:15px}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;
+  background-image:linear-gradient(rgba(52,211,153,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(52,211,153,.045) 1px,transparent 1px);
+  background-size:44px 44px;}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+input,select,textarea{font:inherit;color:var(--txt);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+input:focus,select:focus,textarea:focus{outline:1px solid var(--acc)}
+h1,h2,h3{font-weight:650}
+.hidden{display:none!important}
+
+/* ---------- auth ---------- */
+#auth{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:20px}
+.auth-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:34px 28px;width:100%;max-width:380px;box-shadow:0 0 60px rgba(52,211,153,.08)}
+.brand{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:6px}
+.brand svg{width:34px;height:34px}
+.brand b{font-size:22px;letter-spacing:.5px}
+.brand b span{color:var(--acc)}
+.tag{text-align:center;color:var(--mut);font-size:13px;margin-bottom:22px}
+.auth-tabs{display:flex;gap:6px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:16px}
+.auth-tabs button{flex:1;padding:8px;border-radius:9px;color:var(--mut);font-weight:600}
+.auth-tabs button.on{background:var(--acc);color:#052e1f}
+.auth-card form{display:flex;flex-direction:column;gap:10px}
+.btn{background:var(--acc);color:#052e1f;font-weight:700;border-radius:10px;padding:11px 14px}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--txt)}
+.btn.warn{background:transparent;border:1px solid var(--danger);color:var(--danger)}
+.err{color:var(--danger);font-size:13px;min-height:16px;text-align:center}
+.foot{margin-top:16px;text-align:center;color:var(--mut);font-size:12px;font-family:var(--mono)}
+
+/* ---------- shell ---------- */
+#app{min-height:100dvh;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:14px;padding:12px 18px;border-bottom:1px solid var(--line);background:rgba(7,10,9,.85);backdrop-filter:blur(8px);position:sticky;top:0;z-index:20}
+header .brand{margin:0}
+header .brand b{font-size:17px}
+nav{margin-left:auto;display:flex;gap:4px}
+nav button{padding:8px 13px;border-radius:9px;color:var(--mut);font-weight:600;display:flex;align-items:center;gap:6px}
+nav button.on{background:var(--panel2);color:var(--acc)}
+.chip{font-size:10px;font-family:var(--mono);border:1px solid var(--acc-dim);color:var(--acc);border-radius:20px;padding:1px 7px}
+.userbox{display:flex;align-items:center;gap:10px;margin-left:10px}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--acc);color:#052e1f;display:flex;align-items:center;justify-content:center;font-weight:800}
+.userbox .out{color:var(--mut);font-size:12px}
+main{flex:1;padding:20px;max-width:1100px;width:100%;margin:0 auto}
+.view-head{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.view-head h2{font-size:20px}
+.view-head .sp{flex:1}
+.mut{color:var(--mut);font-size:13px}
+
+/* ---------- horario ---------- */
+.cal-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.cal{display:grid;grid-template-columns:52px repeat(5,minmax(130px,1fr));min-width:700px}
+.cal .corner{border-bottom:1px solid var(--line);border-right:1px solid var(--line)}
+.day-h{padding:10px;text-align:center;font-weight:700;border-bottom:1px solid var(--line);border-right:1px solid var(--line);font-family:var(--mono);font-size:12px;letter-spacing:1px}
+.day-h small{display:block;color:var(--mut);font-weight:400}
+.day-h.today{color:var(--acc)}
+.times{position:relative;border-right:1px solid var(--line)}
+.times span{position:absolute;right:8px;transform:translateY(-50%);font-size:10px;color:var(--mut);font-family:var(--mono)}
+.day-col{position:relative;border-right:1px solid var(--line)}
+.hour-line{position:absolute;left:0;right:0;border-top:1px dashed rgba(28,38,32,.7)}
+.blk{position:absolute;left:5px;right:5px;border-radius:9px;padding:6px 8px;overflow:hidden;border-left:3px solid;cursor:pointer;background:var(--panel2)}
+.blk b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.blk span{font-size:10px;color:var(--mut);font-family:var(--mono)}
+.empty{padding:60px 20px;text-align:center;color:var(--mut)}
+.empty .btn{margin-top:14px}
+
+/* ---------- modal ---------- */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:18px;z-index:50}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:10px}
+.modal h3{margin-bottom:4px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.swatches{display:flex;gap:8px}
+.sw{width:30px;height:30px;border-radius:9px;border:2px solid transparent}
+.sw.on{border-color:#fff}
+.modal .acts{display:flex;gap:8px;margin-top:6px}
+.modal .acts .btn{flex:1}
+
+/* ---------- apuntes ---------- */
+.notes{display:grid;grid-template-columns:280px 1fr;gap:14px;min-height:60vh}
+.notes-list{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.note-item{padding:10px 12px;border-radius:10px;border:1px solid transparent;cursor:pointer}
+.note-item:hover{background:var(--panel2)}
+.note-item.on{background:var(--panel2);border-color:var(--acc-dim)}
+.note-item b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.note-item small{color:var(--mut);font-size:11px}
+.notes-edit{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.notes-edit textarea{flex:1;min-height:280px;resize:vertical;font-family:var(--mono);font-size:13px;line-height:1.6}
+.edit-bar{display:flex;gap:8px;align-items:center}
+.saved{font-size:11px;color:var(--acc);font-family:var(--mono)}
+.backbtn{display:none}
+
+/* ---------- pomodoro ---------- */
+.pomo{display:flex;flex-direction:column;align-items:center;gap:18px;padding-top:10px}
+.modes{display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px}
+.modes button{padding:8px 14px;border-radius:9px;color:var(--mut);font-weight:600}
+.modes button.on{background:var(--acc);color:#052e1f}
+.dial{width:230px;height:230px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative}
+.dial::before{content:"";position:absolute;inset:10px;border-radius:50%;background:var(--panel)}
+.time{position:relative;font-size:52px;font-family:var(--mono);font-weight:700;letter-spacing:2px}
+.pomo-acts{display:flex;gap:10px}
+.stats{display:flex;gap:22px;color:var(--mut);font-size:13px;font-family:var(--mono)}
+.stats b{color:var(--acc);font-size:16px}
+.dur{display:flex;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:12px;color:var(--mut)}
+.dur input{width:56px;padding:5px 8px;font-size:13px}
+
+/* ---------- IA ---------- */
+.ia-box{max-width:520px;margin:40px auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:34px;text-align:center}
+.ia-box .lock{width:52px;height:52px;margin:0 auto 14px;border-radius:14px;background:var(--panel2);border:1px solid var(--acc-dim);display:flex;align-items:center;justify-content:center;color:var(--acc)}
+.ia-box p{color:var(--mut);font-size:14px;margin-top:10px;line-height:1.6}
+.term{font-family:var(--mono);font-size:12px;color:var(--acc);background:#050807;border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-top:18px;text-align:left}
+
+@media(max-width:760px){
+  nav{position:fixed;bottom:0;left:0;right:0;background:rgba(7,10,9,.95);border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom));margin:0;justify-content:space-around;z-index:30;backdrop-filter:blur(10px)}
+  nav button{flex-direction:column;font-size:11px;gap:2px;padding:6px 10px}
+  nav button .chip{display:none}
+  main{padding:14px 14px 90px}
+  .notes{grid-template-columns:1fr}
+  .notes.m-show-list .notes-edit{display:none}
+  .notes:not(.m-show-list) .notes-list{display:none}
+  .backbtn{display:inline-block}
+  .dial{width:200px;height:200px}.time{font-size:44px}
+  .userbox .uname{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ AUTH ============ -->
+<div id="auth">
+  <div class="auth-card">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 20 6v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+      <b>Study<span>Flow</span></b>
+    </div>
+    <p class="tag">Tu horario, tus apuntes y tu enfoque. En un solo sitio.</p>
+    <div class="auth-tabs">
+      <button id="tab-login" class="on">Entrar</button>
+      <button id="tab-reg">Crear cuenta</button>
+    </div>
+    <form id="form-auth">
+      <input id="a-name" placeholder="Nombre de usuario" autocomplete="username" maxlength="20" required>
+      <input id="a-pass" type="password" placeholder="Contraseña" autocomplete="current-password" required>
+      <div class="err" id="a-err"></div>
+      <button class="btn" id="a-go" type="submit">Entrar</button>
+    </form>
+    <p class="foot">fase 1 · tus datos se guardan solo en este navegador</p>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app" class="hidden">
+  <header>
+    <div class="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 20 6v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+      <b>Study<span>Flow</span></b>
+    </div>
+    <nav>
+      <button data-view="horario" class="on">Horario</button>
+      <button data-view="apuntes">Apuntes</button>
+      <button data-view="pomodoro">Pomodoro</button>
+      <button data-view="ia">IA <span class="chip">fase 2</span></button>
+    </nav>
+    <div class="userbox">
+      <div class="avatar" id="u-av">?</div>
+      <span class="uname" id="u-name"></span>
+      <button class="out" id="btn-out" title="Cerrar sesión">salir</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- HORARIO -->
+    <section id="view-horario">
+      <div class="view-head">
+        <h2>Horario semanal</h2>
+        <span class="sp"></span>
+        <button class="btn ghost" id="btn-sample-cal">Datos de ejemplo</button>
+        <button class="btn" id="btn-add-class">+ Añadir clase</button>
+      </div>
+      <div id="cal-empty" class="empty hidden">Todavía no tienes clases. Añade la primera o carga los datos de ejemplo para ver cómo queda.</div>
+      <div class="cal-wrap"><div class="cal" id="cal"></div></div>
+    </section>
+
+    <!-- APUNTES -->
+    <section id="view-apuntes" class="hidden">
+      <div class="view-head">
+        <h2>Apuntes</h2>
+        <span class="sp"></span>
+        <button class="btn ghost" id="btn-sample-notes">Datos de ejemplo</button>
+        <button class="btn" id="btn-new-note">+ Nuevo apunte</button>
+      </div>
+      <div class="notes m-show-list" id="notes">
+        <div class="notes-list">
+          <input id="note-search" placeholder="Buscar apuntes...">
+          <div id="note-items"></div>
+        </div>
+        <div class="notes-edit">
+          <div class="edit-bar">
+            <button class="btn ghost backbtn" id="btn-back-notes">← Apuntes</button>
+            <input id="note-title" placeholder="Título del apunte" style="flex:1">
+            <span class="saved hidden" id="note-saved">guardado</span>
+            <button class="btn warn" id="btn-del-note">Borrar</button>
+          </div>
+          <textarea id="note-body" placeholder="Escribe aquí... se guarda solo."></textarea>
+        </div>
+      </div>
+      <div id="notes-empty" class="empty hidden">Sin apuntes todavía. Crea el primero o carga los datos de ejemplo.</div>
+    </section>
+
+    <!-- POMODORO -->
+    <section id="view-pomodoro" class="hidden">
+      <div class="view-head"><h2>Pomodoro</h2></div>
+      <div class="pomo">
+        <div class="modes" id="modes">
+          <button data-mode="focus" class="on">Enfoque</button>
+          <button data-mode="short">Descanso</button>
+          <button data-mode="long">Largo</button>
+        </div>
+        <div class="dial" id="dial"><div class="time" id="time">25:00</div></div>
+        <div class="pomo-acts">
+          <button class="btn" id="btn-start" style="min-width:120px">Iniciar</button>
+          <button class="btn ghost" id="btn-reset">Reiniciar</button>
+        </div>
+        <div class="stats">
+          <span>hoy<br><b id="st-today">0</b></span>
+          <span>total<br><b id="st-total">0</b></span>
+        </div>
+        <div class="dur">
+          duración (min):
+          enfoque <input type="number" id="d-focus" min="1" max="120" value="25">
+          descanso <input type="number" id="d-short" min="1" max="60" value="5">
+          largo <input type="number" id="d-long" min="1" max="90" value="15">
+        </div>
+      </div>
+    </section>
+
+    <!-- IA -->
+    <section id="view-ia" class="hidden">
+      <div class="ia-box">
+        <div class="lock"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+        <h2>IA - fase 2</h2>
+        <p>Aquí va la pieza grande: una IA conectada que mira tus clases, tus apuntes y tus pomodoros, y te propone cómo ordenar la semana. Le cambias algo y te rehace el horario al momento.</p>
+        <div class="term">$ studyflow ai --plan semana<br>&gt; pendiente de fase 2... <span style="opacity:.6">el hueco ya está puesto</span></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- modal clase -->
+<div class="overlay hidden" id="overlay">
+  <div class="modal">
+    <h3 id="m-title">Nueva clase</h3>
+    <input id="m-name" placeholder="Nombre (p.ej. Mates)" maxlength="40">
+    <select id="m-day">
+      <option value="0">Lunes</option><option value="1">Martes</option><option value="2">Miércoles</option>
+      <option value="3">Jueves</option><option value="4">Viernes</option>
+    </select>
+    <div class="row2">
+      <input id="m-start" type="time" value="09:00">
+      <input id="m-end" type="time" value="10:00">
+    </div>
+    <div class="swatches" id="m-colors"></div>
+    <div class="err" id="m-err"></div>
+    <div class="acts">
+      <button class="btn warn hidden" id="m-del">Borrar</button>
+      <button class="btn ghost" id="m-cancel">Cancelar</button>
+      <button class="btn" id="m-save">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const H0=8, H1=22, HOUR=60; // calendario 8:00-22:00, 60px/hora
+const DAYS=['LUN','MAR','MIE','JUE','VIE'];
+const COLORS=['#34d399','#60a5fa','#f472b6','#fbbf24','#a78bfa'];
+
+/* ---------- storage ---------- */
+const store={
+  users(){try{return JSON.parse(localStorage.getItem('sf_users')||'{}')}catch(e){return{}}},
+  saveUsers(u){localStorage.setItem('sf_users',JSON.stringify(u))},
+  data(n){try{return JSON.parse(localStorage.getItem('sf_data_'+n)||'null')}catch(e){return null}},
+  saveData(n,d){localStorage.setItem('sf_data_'+n,JSON.stringify(d))},
+  session(){return localStorage.getItem('sf_session')},
+  setSession(n){n?localStorage.setItem('sf_session',n):localStorage.removeItem('sf_session')}
+};
+function blankData(){return {classes:[],notes:[],pomos:{total:0,days:{}},settings:{focus:25,short:5,long:15}}}
+async function hash(s){
+  if(window.crypto&&crypto.subtle){try{
+    const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
+    return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+  }catch(e){}}
+  let h=7;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return 'f'+h;
+}
+
+let me=null, data=null;
+function save(){store.saveData(me,data)}
+
+/* ---------- auth ---------- */
+let authMode='login';
+function setAuthMode(m){
+  authMode=m;
+  $('#tab-login').classList.toggle('on',m==='login');
+  $('#tab-reg').classList.toggle('on',m==='reg');
+  $('#a-go').textContent=m==='login'?'Entrar':'Crear cuenta';
+  $('#a-err').textContent='';
+}
+$('#tab-login').onclick=()=>setAuthMode('login');
+$('#tab-reg').onclick=()=>setAuthMode('reg');
+$('#form-auth').onsubmit=async e=>{
+  e.preventDefault();
+  const name=$('#a-name').value.trim(), pass=$('#a-pass').value;
+  const users=store.users(), key=Object.keys(users).find(k=>k.toLowerCase()===name.toLowerCase());
+  if(!/^[a-zA-Z0-9_.-]{3,20}$/.test(name)){$('#a-err').textContent='Usuario de 3-20 letras, números o _ . -';return}
+  if(pass.length<4){$('#a-err').textContent='Contraseña de al menos 4 caracteres';return}
+  const h=await hash(pass);
+  if(authMode==='reg'){
+    if(key){$('#a-err').textContent='Ese usuario ya existe en este navegador';return}
+    users[name]={h,created:Date.now()};store.saveUsers(users);
+    store.saveData(name,blankData());
+    enter(name);
+  }else{
+    if(!key||users[key].h!==h){$('#a-err').textContent='Usuario o contraseña incorrectos';return}
+    enter(key);
+  }
+};
+function enter(name){
+  me=name;data=store.data(name)||blankData();store.setSession(name);
+  $('#auth').classList.add('hidden');$('#app').classList.remove('hidden');
+  $('#u-name').textContent=name;$('#u-av').textContent=name[0].toUpperCase();
+  syncSettingsUI();renderAll();
+}
+$('#btn-out').onclick=()=>{stopTimer();me=null;store.setSession(null);$('#app').classList.add('hidden');$('#auth').classList.remove('hidden');$('#a-pass').value=''};
+
+/* ---------- nav ---------- */
+$$('nav button').forEach(b=>b.onclick=()=>{
+  $$('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  ['horario','apuntes','pomodoro','ia'].forEach(v=>$('#view-'+v).classList.toggle('hidden',v!==b.dataset.view));
+  if(b.dataset.view==='horario')renderCal();
+});
+
+/* ---------- horario ---------- */
+let editId=null, mColor=COLORS[0];
+const swBox=$('#m-colors');
+COLORS.forEach(c=>{const d=document.createElement('button');d.className='sw';d.dataset.color=c;d.style.background=c;d.onclick=()=>{mColor=c;$$('.sw').forEach(x=>x.classList.toggle('on',x.dataset.color===mColor))};swBox.appendChild(d)});
+$$('.sw')[0].classList.add('on');
+
+function toMin(t){const[a,b]=t.split(':').map(Number);return a*60+b}
+function renderCal(){
+  const cal=$('#cal');cal.innerHTML='';
+  cal.appendChild(Object.assign(document.createElement('div'),{className:'corner'}));
+  const today=(new Date().getDay()+6)%7;
+  DAYS.forEach((d,i)=>{const h=document.createElement('div');h.className='day-h'+(i===today?' today':'');h.innerHTML=d+'<small>'+['lunes','martes','miércoles','jueves','viernes'][i]+'</small>';cal.appendChild(h)});
+  const times=document.createElement('div');times.className='times';times.style.height=((H1-H0)*HOUR)+'px';
+  for(let h=H0;h<H1;h++){const s=document.createElement('span');s.style.top=((h-H0)*HOUR)+'px';s.textContent=String(h).padStart(2,'0')+':00';times.appendChild(s)}
+  cal.appendChild(times);
+  for(let d=0;d<5;d++){
+    const col=document.createElement('div');col.className='day-col';col.style.height=((H1-H0)*HOUR)+'px';
+    for(let h=H0;h<H1;h++){const l=document.createElement('div');l.className='hour-line';l.style.top=((h-H0)*HOUR)+'px';col.appendChild(l)}
+    data.classes.filter(c=>c.day===d).sort((a,b)=>toMin(a.start)-toMin(b.start)).forEach(c=>{
+      const top=Math.max(0,(toMin(c.start)-H0*60))/60*HOUR;
+      const hgt=Math.max(24,(toMin(c.end)-toMin(c.start))/60*HOUR);
+      const b=document.createElement('div');b.className='blk';b.style.top=top+'px';b.style.height=hgt+'px';b.style.borderLeftColor=c.color;
+      b.innerHTML='<b style="color:'+c.color+'"></b><span>'+c.start+' - '+c.end+'</span>';
+      b.querySelector('b').textContent=c.name;
+      b.onclick=()=>openModal(c);col.appendChild(b);
+    });
+    cal.appendChild(col);
+  }
+  $('#cal-empty').classList.toggle('hidden',data.classes.length>0);
+  $('.cal-wrap').classList.toggle('hidden',data.classes.length===0);
+}
+function openModal(c){
+  editId=c?c.id:null;
+  $('#m-title').textContent=c?'Editar clase':'Nueva clase';
+  $('#m-name').value=c?c.name:'';
+  $('#m-day').value=c?c.day:'0';
+  $('#m-start').value=c?c.start:'09:00';
+  $('#m-end').value=c?c.end:'10:00';
+  mColor=c?c.color:COLORS[0];
+  $$('.sw').forEach(x=>x.classList.toggle('on',x.dataset.color===mColor));
+  $('#m-del').classList.toggle('hidden',!c);
+  $('#m-err').textContent='';
+  $('#overlay').classList.remove('hidden');
+}
+$('#btn-add-class').onclick=()=>openModal(null);
+$('#m-cancel').onclick=()=>$('#overlay').classList.add('hidden');
+$('#overlay').onclick=e=>{if(e.target.id==='overlay')$('#overlay').classList.add('hidden')};
+$('#m-del').onclick=()=>{if(confirm('¿Borrar esta clase?')){data.classes=data.classes.filter(c=>c.id!==editId);save();$('#overlay').classList.add('hidden');renderCal()}};
+$('#m-save').onclick=()=>{
+  const name=$('#m-name').value.trim(),day=+$('#m-day').value,start=$('#m-start').value,end=$('#m-end').value;
+  if(!name){$('#m-err').textContent='Ponle un nombre';return}
+  if(!start||!end||toMin(start)>=toMin(end)){$('#m-err').textContent='La hora de fin tiene que ser después de la de inicio';return}
+  if(editId){const c=data.classes.find(x=>x.id===editId);Object.assign(c,{name,day,start,end,color:mColor})}
+  else data.classes.push({id:Date.now(),name,day,start,end,color:mColor});
+  save();$('#overlay').classList.add('hidden');renderCal();
+};
+$('#btn-sample-cal').onclick=()=>{seedCal()};
+
+function seedCal(){
+  data.classes=[
+    {id:1,name:'Matemáticas',day:0,start:'09:00',end:'10:30',color:COLORS[1]},
+    {id:2,name:'Programación',day:0,start:'11:00',end:'13:00',color:COLORS[0]},
+    {id:3,name:'Inglés',day:1,start:'10:00',end:'11:30',color:COLORS[3]},
+    {id:4,name:'Redes',day:2,start:'09:00',end:'11:00',color:COLORS[4]},
+    {id:5,name:'Gym',day:3,start:'16:00',end:'17:30',color:COLORS[2]},
+    {id:6,name:'Proyecto',day:4,start:'09:30',end:'11:00',color:COLORS[0]},
+  ];save();renderCal();
+}
+
+/* ---------- apuntes ---------- */
+let curNote=null, saveT=null;
+function renderNotes(){
+  const q=($('#note-search').value||'').toLowerCase();
+  const list=data.notes.filter(n=>!q||n.title.toLowerCase().includes(q)||n.body.toLowerCase().includes(q)).sort((a,b)=>b.updated-a.updated);
+  const box=$('#note-items');box.innerHTML='';
+  list.forEach(n=>{
+    const d=document.createElement('div');d.className='note-item'+(curNote===n.id?' on':'');
+    const dt=new Date(n.updated);
+    d.innerHTML='<b></b><small>'+dt.toLocaleDateString('es-ES',{day:'numeric',month:'short'})+' '+dt.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})+'</small>';
+    d.querySelector('b').textContent=n.title||'Sin título';
+    d.onclick=()=>openNote(n.id);box.appendChild(d);
+  });
+  $('#notes-empty').classList.toggle('hidden',data.notes.length>0);
+  $('#notes').classList.toggle('hidden',data.notes.length===0&&false);
+}
+function openNote(id){
+  const n=data.notes.find(x=>x.id===id);if(!n)return;
+  curNote=id;$('#note-title').value=n.title;$('#note-body').value=n.body;
+  $('#notes').classList.remove('m-show-list');renderNotes();
+}
+$('#btn-back-notes').onclick=()=>$('#notes').classList.add('m-show-list');
+$('#note-search').oninput=renderNotes;
+$('#btn-new-note').onclick=()=>{
+  const n={id:Date.now(),title:'',body:'',updated:Date.now()};
+  data.notes.push(n);save();openNote(n.id);$('#note-title').focus();
+};
+$('#btn-del-note').onclick=()=>{
+  if(curNote==null)return;
+  if(!confirm('¿Borrar este apunte?'))return;
+  data.notes=data.notes.filter(n=>n.id!==curNote);curNote=null;
+  $('#note-title').value='';$('#note-body').value='';
+  $('#notes').classList.add('m-show-list');save();renderNotes();
+};
+function noteChanged(){
+  if(curNote==null)return;
+  const n=data.notes.find(x=>x.id===curNote);if(!n)return;
+  n.title=$('#note-title').value;n.body=$('#note-body').value;n.updated=Date.now();
+  $('#note-saved').classList.add('hidden');
+  clearTimeout(saveT);saveT=setTimeout(()=>{save();renderNotes();$('#note-saved').classList.remove('hidden');setTimeout(()=>$('#note-saved').classList.add('hidden'),1500)},600);
+}
+$('#note-title').oninput=noteChanged;$('#note-body').oninput=noteChanged;
+$('#btn-sample-notes').onclick=()=>{
+  data.notes.push(
+    {id:Date.now(),title:'Ideas proyecto',body:'- App de horarios con IA\n- Empezar por horario + apuntes + pomodoro\n- La IA que ordene la semana va en fase 2',updated:Date.now()},
+    {id:Date.now()+1,title:'Chuleta pomodoro',body:'25 min enfoque + 5 descanso.\nA la cuarta ronda, descanso largo de 15.\nSin móvil durante el enfoque.',updated:Date.now()}
+  );save();renderNotes();
+};
+
+/* ---------- pomodoro ---------- */
+const P={mode:'focus',left:25*60,total:25*60,running:false,int:null};
+function durFor(m){return (data.settings[m]||25)*60}
+function syncSettingsUI(){$('#d-focus').value=data.settings.focus;$('#d-short').value=data.settings.short;$('#d-long').value=data.settings.long}
+['focus','short','long'].forEach(m=>{
+  $('#d-'+m).onchange=e=>{let v=Math.max(1,Math.min(180,+e.target.value||25));data.settings[m]=v;e.target.value=v;save();if(P.mode===m&&!P.running)setMode(m)};
+});
+$$('#modes button').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+function setMode(m){
+  stopTimer();P.mode=m;P.left=durFor(m);P.total=P.left;
+  $$('#modes button').forEach(x=>x.classList.toggle('on',x.dataset.mode===m));
+  renderPomo();
+}
+function renderPomo(){
+  const mm=String(Math.floor(P.left/60)).padStart(2,'0'),ss=String(P.left%60).padStart(2,'0');
+  $('#time').textContent=mm+':'+ss;
+  const pct=P.total?1-P.left/P.total:0;
+  $('#dial').style.background='conic-gradient(var(--acc) '+(pct*360)+'deg, var(--panel2) 0deg)';
+  const todayKey=new Date().toISOString().slice(0,10);
+  $('#st-today').textContent=data.pomos.days[todayKey]||0;
+  $('#st-total').textContent=data.pomos.total;
+  $('#btn-start').textContent=P.running?'Pausar':'Iniciar';
+}
+$('#btn-start').onclick=()=>{
+  if(P.running){stopTimer();renderPomo();return}
+  P.running=true;
+  P.int=setInterval(()=>{
+    P.left--;renderPomo();
+    if(P.left<=0){
+      stopTimer();
+      if(P.mode==='focus'){
+        const k=new Date().toISOString().slice(0,10);
+        data.pomos.total++;data.pomos.days[k]=(data.pomos.days[k]||0)+1;save();
+      }
+      beep();renderPomo();
+      alert(P.mode==='focus'?'¡Enfoque terminado! Toca un descanso.':'Descanso terminado. ¡A por otro!');
+      setMode(P.mode==='focus'?'short':'focus');
+    }
+  },1000);
+  renderPomo();
+};
+function stopTimer(){P.running=false;clearInterval(P.int)}
+$('#btn-reset').onclick=()=>setMode(P.mode);
+function beep(){try{
+  const a=new (window.AudioContext||window.webkitAudioContext)();
+  const o=a.createOscillator(),g=a.createGain();
+  o.connect(g);g.connect(a.destination);o.frequency.value=880;
+  g.gain.setValueAtTime(.25,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+1.2);
+  o.start();o.stop(a.currentTime+1.2);
+}catch(e){}}
+
+/* ---------- init ---------- */
+function renderAll(){renderCal();renderNotes();setMode(P.mode)}
+const sess=store.session();
+if(sess&&store.users()[sess])enter(sess);
+if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+</script>
+</body>
+</html>
