@@ -81,6 +81,17 @@ main{flex:1;padding:20px;max-width:1100px;width:100%;margin:0 auto}
 .empty{padding:60px 20px;text-align:center;color:var(--mut)}
 .empty .btn{margin-top:14px}
 
+.dl-item{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.dl-item .grow{flex:1;min-width:0}
+.dl-item b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl-item.done b{text-decoration:line-through;color:var(--mut)}
+.dl-when{font-family:var(--mono);font-size:11px;color:var(--mut)}
+.dl-left{font-family:var(--mono);font-size:12px;color:var(--acc);white-space:nowrap}
+.dl-left.soon{color:var(--danger)}
+.dl-left.late{color:var(--danger)}
+.dl-x{color:var(--mut);padding:6px}
+.dl-ok{border:1px solid var(--line);border-radius:8px;width:26px;height:26px;color:var(--acc)}
+
 /* ---------- modal ---------- */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:18px;z-index:50}
 .modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:10px}
@@ -161,6 +172,7 @@ main{flex:1;padding:20px;max-width:1100px;width:100%;margin:0 auto}
       <div class="err" id="a-err"></div>
       <button class="btn" id="a-go" type="submit">Entrar</button>
     </form>
+    <button class="btn ghost" id="btn-demo" style="width:100%;margin-top:10px">Entrar con la cuenta demo</button>
     <p class="foot">fase 1 · tus datos se guardan solo en este navegador</p>
   </div>
 </div>
@@ -174,12 +186,13 @@ main{flex:1;padding:20px;max-width:1100px;width:100%;margin:0 auto}
     </div>
     <nav>
       <button data-view="horario" class="on">Horario</button>
+      <button data-view="entregas">Entregas</button>
       <button data-view="apuntes">Apuntes</button>
       <button data-view="pomodoro">Pomodoro</button>
       <button data-view="ia">IA <span class="chip">fase 2</span></button>
     </nav>
     <div class="userbox">
-      <div class="avatar" id="u-av">?</div>
+      <div class="avatar" id="u-av" title="Mi cuenta">?</div>
       <span class="uname" id="u-name"></span>
       <button class="out" id="btn-out" title="Cerrar sesión">salir</button>
     </div>
@@ -196,6 +209,18 @@ main{flex:1;padding:20px;max-width:1100px;width:100%;margin:0 auto}
       </div>
       <div id="cal-empty" class="empty hidden">Todavía no tienes clases. Añade la primera o carga los datos de ejemplo para ver cómo queda.</div>
       <div class="cal-wrap"><div class="cal" id="cal"></div></div>
+    </section>
+
+    <!-- ENTREGAS -->
+    <section id="view-entregas" class="hidden">
+      <div class="view-head">
+        <h2>Entregas</h2>
+        <span class="sp"></span>
+        <button class="btn ghost" id="btn-sample-dl">Datos de ejemplo</button>
+        <button class="btn" id="btn-add-dl">+ Nueva entrega</button>
+      </div>
+      <div id="dl-empty" class="empty hidden">Sin entregas. Añade la primera y te cuento cuánto queda.</div>
+      <div id="dl-list"></div>
     </section>
 
     <!-- APUNTES -->
@@ -241,6 +266,8 @@ main{flex:1;padding:20px;max-width:1100px;width:100%;margin:0 auto}
         <div class="stats">
           <span>hoy<br><b id="st-today">0</b></span>
           <span>total<br><b id="st-total">0</b></span>
+          <span>min hoy<br><b id="st-min-today">0</b></span>
+          <span>min semana<br><b id="st-min-week">0</b></span>
         </div>
         <div class="dur">
           duración (min):
@@ -261,6 +288,37 @@ main{flex:1;padding:20px;max-width:1100px;width:100%;margin:0 auto}
       </div>
     </section>
   </main>
+</div>
+
+<!-- modal entrega -->
+<div class="overlay hidden" id="overlay-dl">
+  <div class="modal">
+    <h3>Nueva entrega</h3>
+    <input id="dl-name" placeholder="¿Qué tienes que entregar?" maxlength="60">
+    <label class="mut" style="font-size:12px">Fecha y hora límite</label>
+    <input id="dl-due" type="datetime-local">
+    <div class="err" id="dl-err"></div>
+    <div class="acts">
+      <button class="btn ghost" id="dl-cancel">Cancelar</button>
+      <button class="btn" id="dl-save">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal cuenta -->
+<div class="overlay hidden" id="overlay-acc">
+  <div class="modal">
+    <h3>Mi cuenta</h3>
+    <p class="mut" style="font-size:13px">Tus datos se guardan solo en este navegador. Exporta una copia si cambias de dispositivo.</p>
+    <button class="btn" id="acc-export">Exportar mis datos (JSON)</button>
+    <button class="btn ghost" id="acc-import">Importar datos</button>
+    <input type="file" id="acc-file" accept="application/json" class="hidden">
+    <button class="btn warn" id="acc-wipe">Borrar todos mis datos</button>
+    <div class="err" id="acc-err"></div>
+    <div class="acts">
+      <button class="btn ghost" id="acc-close">Cerrar</button>
+    </div>
+  </div>
 </div>
 
 <!-- modal clase -->
@@ -302,7 +360,7 @@ const store={
   session(){return localStorage.getItem('sf_session')},
   setSession(n){n?localStorage.setItem('sf_session',n):localStorage.removeItem('sf_session')}
 };
-function blankData(){return {classes:[],notes:[],pomos:{total:0,days:{}},settings:{focus:25,short:5,long:15}}}
+function blankData(){return {classes:[],deadlines:[],notes:[],pomos:{total:0,days:{},mins:{},totalMin:0},settings:{focus:25,short:5,long:15}}}
 async function hash(s){
   if(window.crypto&&crypto.subtle){try{
     const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
@@ -338,12 +396,25 @@ $('#form-auth').onsubmit=async e=>{
     store.saveData(name,blankData());
     enter(name);
   }else{
-    if(!key||users[key].h!==h){$('#a-err').textContent='Usuario o contraseña incorrectos';return}
+    if(!key){$('#a-err').textContent='Ese usuario no existe en este navegador. Crea la cuenta o entra con la demo.';return}
+    if(users[key].h!==h){$('#a-err').textContent='Contraseña incorrecta';return}
     enter(key);
   }
 };
+$('#btn-demo').onclick=async ()=>{
+  const users=store.users();
+  if(!users.demo){
+    users.demo={h:await hash('demo1234'),created:Date.now()};store.saveUsers(users);
+    store.saveData('demo',blankData());
+  }
+  enter('demo');
+  if(!data.classes.length&&!data.notes.length&&!data.deadlines.length){seedCal();seedNotes();seedDl()}
+};
 function enter(name){
   me=name;data=store.data(name)||blankData();store.setSession(name);
+  data.deadlines=data.deadlines||[];
+  data.pomos.mins=data.pomos.mins||{};
+  if(data.pomos.totalMin==null)data.pomos.totalMin=0;
   $('#auth').classList.add('hidden');$('#app').classList.remove('hidden');
   $('#u-name').textContent=name;$('#u-av').textContent=name[0].toUpperCase();
   syncSettingsUI();renderAll();
@@ -353,8 +424,9 @@ $('#btn-out').onclick=()=>{stopTimer();me=null;store.setSession(null);$('#app').
 /* ---------- nav ---------- */
 $$('nav button').forEach(b=>b.onclick=()=>{
   $$('nav button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
-  ['horario','apuntes','pomodoro','ia'].forEach(v=>$('#view-'+v).classList.toggle('hidden',v!==b.dataset.view));
+  ['horario','entregas','apuntes','pomodoro','ia'].forEach(v=>$('#view-'+v).classList.toggle('hidden',v!==b.dataset.view));
   if(b.dataset.view==='horario')renderCal();
+  if(b.dataset.view==='entregas')renderDeadlines();
 });
 
 /* ---------- horario ---------- */
@@ -468,11 +540,85 @@ function noteChanged(){
   clearTimeout(saveT);saveT=setTimeout(()=>{save();renderNotes();$('#note-saved').classList.remove('hidden');setTimeout(()=>$('#note-saved').classList.add('hidden'),1500)},600);
 }
 $('#note-title').oninput=noteChanged;$('#note-body').oninput=noteChanged;
-$('#btn-sample-notes').onclick=()=>{
+$('#btn-sample-notes').onclick=()=>{seedNotes()};
+function seedNotes(){
   data.notes.push(
     {id:Date.now(),title:'Ideas proyecto',body:'- App de horarios con IA\n- Empezar por horario + apuntes + pomodoro\n- La IA que ordene la semana va en fase 2',updated:Date.now()},
     {id:Date.now()+1,title:'Chuleta pomodoro',body:'25 min enfoque + 5 descanso.\nA la cuarta ronda, descanso largo de 15.\nSin móvil durante el enfoque.',updated:Date.now()}
   );save();renderNotes();
+}
+
+/* ---------- entregas ---------- */
+function fmtLeft(ms){
+  if(ms<0){const d=Math.floor(-ms/86400000);return d>0?'vencida hace '+d+'d':'vencida hoy'}
+  const d=Math.floor(ms/86400000),h=Math.floor(ms%86400000/3600000),m=Math.floor(ms%3600000/60000);
+  if(d>0)return 'quedan '+d+'d '+h+'h';
+  if(h>0)return 'quedan '+h+'h '+m+'m';
+  return 'quedan '+m+'m';
+}
+function renderDeadlines(){
+  const box=$('#dl-list');box.innerHTML='';
+  const now=Date.now();
+  const list=[...data.deadlines].sort((a,b)=>new Date(a.due)-new Date(b.due));
+  list.forEach(d=>{
+    const due=new Date(d.due).getTime(),left=due-now;
+    const row=document.createElement('div');row.className='dl-item'+(d.done?' done':'');
+    const soon=!d.done&&left>0&&left<86400000, late=!d.done&&left<0;
+    row.innerHTML='<button class="dl-ok">'+(d.done?'✓':'')+'</button><div class="grow"><b></b><span class="dl-when">'+new Date(d.due).toLocaleString('es-ES',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+'</span></div><span class="dl-left'+(soon?' soon':'')+(late?' late':'')+'">'+(d.done?'hecha':fmtLeft(left))+'</span><button class="dl-x">✕</button>';
+    row.querySelector('b').textContent=d.name;
+    row.querySelector('.dl-ok').onclick=()=>{d.done=!d.done;save();renderDeadlines()};
+    row.querySelector('.dl-x').onclick=()=>{if(confirm('¿Borrar esta entrega?')){data.deadlines=data.deadlines.filter(x=>x.id!==d.id);save();renderDeadlines()}};
+    box.appendChild(row);
+  });
+  $('#dl-empty').classList.toggle('hidden',data.deadlines.length>0);
+}
+$('#btn-add-dl').onclick=()=>{
+  $('#dl-name').value='';$('#dl-due').value='';$('#dl-err').textContent='';
+  $('#overlay-dl').classList.remove('hidden');
+};
+$('#dl-cancel').onclick=()=>$('#overlay-dl').classList.add('hidden');
+$('#overlay-dl').onclick=e=>{if(e.target.id==='overlay-dl')$('#overlay-dl').classList.add('hidden')};
+$('#dl-save').onclick=()=>{
+  const name=$('#dl-name').value.trim(),due=$('#dl-due').value;
+  if(!name){$('#dl-err').textContent='Ponle un nombre';return}
+  if(!due){$('#dl-err').textContent='Ponle fecha y hora';return}
+  data.deadlines.push({id:Date.now(),name,due,done:false});
+  save();$('#overlay-dl').classList.add('hidden');renderDeadlines();
+};
+$('#btn-sample-dl').onclick=()=>{seedDl()};
+function seedDl(){
+  const day=86400000,now=Date.now();
+  data.deadlines.push(
+    {id:now+1,name:'Práctica 2 de redes',due:new Date(now+2*day).toISOString().slice(0,16),done:false},
+    {id:now+2,name:'Examen de mates',due:new Date(now+5*day).toISOString().slice(0,16),done:false}
+  );save();renderDeadlines();
+}
+setInterval(()=>{if(me&&!$('#view-entregas').classList.contains('hidden'))renderDeadlines()},60000);
+
+/* ---------- cuenta ---------- */
+$('#u-av').onclick=()=>{$('#acc-err').textContent='';$('#overlay-acc').classList.remove('hidden')};
+$('#acc-close').onclick=()=>$('#overlay-acc').classList.add('hidden');
+$('#overlay-acc').onclick=e=>{if(e.target.id==='overlay-acc')$('#overlay-acc').classList.add('hidden')};
+$('#acc-export').onclick=()=>{
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='studyflow-'+me+'.json';a.click();URL.revokeObjectURL(a.href);
+};
+$('#acc-import').onclick=()=>$('#acc-file').click();
+$('#acc-file').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{try{
+    const d=JSON.parse(r.result);
+    if(!d||!Array.isArray(d.classes)||!Array.isArray(d.notes))throw 0;
+    data=d;data.deadlines=data.deadlines||[];data.pomos=data.pomos||{total:0,days:{},mins:{},totalMin:0};data.settings=data.settings||{focus:25,short:5,long:15};
+    save();syncSettingsUI();renderAll();$('#overlay-acc').classList.add('hidden');
+  }catch(x){$('#acc-err').textContent='Ese archivo no vale. Tiene que ser un JSON exportado desde StudyFlow.'}};
+  r.readAsText(f);e.target.value='';
+};
+$('#acc-wipe').onclick=()=>{
+  if(!confirm('¿Seguro? Se borran tu horario, entregas, apuntes y estadísticas de este navegador.'))return;
+  data=blankData();save();syncSettingsUI();renderAll();$('#overlay-acc').classList.add('hidden');
 };
 
 /* ---------- pomodoro ---------- */
@@ -496,6 +642,9 @@ function renderPomo(){
   const todayKey=new Date().toISOString().slice(0,10);
   $('#st-today').textContent=data.pomos.days[todayKey]||0;
   $('#st-total').textContent=data.pomos.total;
+  $('#st-min-today').textContent=data.pomos.mins[todayKey]||0;
+  let wk=0;for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);wk+=data.pomos.mins[d.toISOString().slice(0,10)]||0}
+  $('#st-min-week').textContent=wk;
   $('#btn-start').textContent=P.running?'Pausar':'Iniciar';
 }
 $('#btn-start').onclick=()=>{
@@ -507,7 +656,10 @@ $('#btn-start').onclick=()=>{
       stopTimer();
       if(P.mode==='focus'){
         const k=new Date().toISOString().slice(0,10);
-        data.pomos.total++;data.pomos.days[k]=(data.pomos.days[k]||0)+1;save();
+        const mins=Math.round(durFor('focus')/60);
+        data.pomos.total++;data.pomos.days[k]=(data.pomos.days[k]||0)+1;
+        data.pomos.mins[k]=(data.pomos.mins[k]||0)+mins;data.pomos.totalMin+=mins;
+        save();
       }
       beep();renderPomo();
       alert(P.mode==='focus'?'¡Enfoque terminado! Toca un descanso.':'Descanso terminado. ¡A por otro!');
@@ -527,7 +679,7 @@ function beep(){try{
 }catch(e){}}
 
 /* ---------- init ---------- */
-function renderAll(){renderCal();renderNotes();setMode(P.mode)}
+function renderAll(){renderCal();renderDeadlines();renderNotes();setMode(P.mode)}
 const sess=store.session();
 if(sess&&store.users()[sess])enter(sess);
 if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(()=>{})}
