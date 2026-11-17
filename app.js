@@ -221,14 +221,23 @@ function setAuthMode(m){
   $('#tab-login').classList.toggle('on',m==='login');
   $('#tab-reg').classList.toggle('on',m==='reg');
   $('#a-go').textContent=m==='login'?'Entrar':'Crear cuenta';
-  $('#a-err').textContent='';
+  $('#a-err').textContent='';$('#a-err').classList.remove('ok');
 }
+function showAuthPane(p){
+  $('#auth-tabs').classList.toggle('hidden',p!=='auth');
+  $('#form-auth').classList.toggle('hidden',p!=='auth');
+  $('#form-reset').classList.toggle('hidden',p!=='reset');
+  $('#form-newpass').classList.toggle('hidden',p!=='newpass');
+}
+const okMsg=(el,m)=>{el.textContent=m;el.classList.add('ok')};
 $('#tab-login').onclick=()=>setAuthMode('login');
 $('#tab-reg').onclick=()=>setAuthMode('reg');
+$('#a-forgot').onclick=()=>{showAuthPane('reset');$('#r-err').textContent='';$('#r-err').classList.remove('ok');$('#r-name').value=$('#a-name').value};
+$('#r-back').onclick=()=>showAuthPane('auth');
 $('#form-auth').onsubmit=async e=>{
   e.preventDefault();
   const email=$('#a-name').value.trim().toLowerCase(), pass=$('#a-pass').value;
-  const err=m=>{$('#a-err').textContent=m};
+  const err=m=>{$('#a-err').textContent=m;$('#a-err').classList.remove('ok')};
   if(!email||!pass){err('Completa todos los campos');return}
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){err('Escribe un email válido');return}
   if(pass.length<6){err('Contraseña de al menos 6 caracteres');return}
@@ -236,10 +245,41 @@ $('#form-auth').onsubmit=async e=>{
   try{
     const r=authMode==='reg'?await sbSignup(email,pass):await sbLogin(email,pass);
     if(!r.ok){err(r.error);return}
-    if(r.needsConfirm){err('Cuenta creada. Revisa tu email para confirmarla.');return}
+    if(r.needsConfirm){okMsg($('#a-err'),'Cuenta creada. Revisa tu email y pulsa el enlace para confirmarla.');return}
     await enterCloud(r.user,authMode==='reg');
   }catch(ex){err('Sin conexión. Inténtalo de nuevo en un momento.')}
   finally{$('#a-go').disabled=false}
+};
+$('#form-reset').onsubmit=async e=>{
+  e.preventDefault();
+  const email=$('#r-name').value.trim().toLowerCase();
+  const err=m=>{$('#r-err').textContent=m;$('#r-err').classList.remove('ok')};
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){err('Escribe un email válido');return}
+  $('#r-go').disabled=true;err('');
+  try{
+    const r=await sbRecover(email);
+    if(!r.ok){err(r.error);return}
+    okMsg($('#r-err'),'Si ese email tiene cuenta, te llegará un enlace para restablecer la contraseña.');
+  }catch(ex){err('Sin conexión. Inténtalo de nuevo en un momento.')}
+  finally{$('#r-go').disabled=false}
+};
+$('#form-newpass').onsubmit=async e=>{
+  e.preventDefault();
+  const p1=$('#n-pass').value, p2=$('#n-pass2').value;
+  const err=m=>{$('#n-err').textContent=m;$('#n-err').classList.remove('ok')};
+  if(p1.length<6){err('Contraseña de al menos 6 caracteres');return}
+  if(p1!==p2){err('Las contraseñas no coinciden');return}
+  $('#n-go').disabled=true;err('');
+  try{
+    const r=await sbUpdatePassword(p1);
+    if(!r.ok){err(r.error);return}
+    const s=sbSession();
+    if(r.user&&s){s.user=r.user;sbSetSession(s)}
+    const u=(s&&s.user)||r.user;
+    if(u){await enterCloud(u,false);notice('Contraseña actualizada','Ya puedes usar tu nueva contraseña.')}
+    else location.reload();
+  }catch(ex){err('Sin conexión. Inténtalo de nuevo en un momento.')}
+  finally{$('#n-go').disabled=false}
 };
 function normalize(){
   data.classes=data.classes||[];
@@ -933,11 +973,27 @@ function beep(){try{
 
 /* ---------- init ---------- */
 function renderAll(){fillSubjSelects();renderCal();renderDeadlines();renderNotes();renderGrades();setMode(P.mode);checkReminders()}
+const sbHash=typeof sbHashSession==='function'?sbHashSession():null;
+if(sbHash){
+  /* Vuelve de un email de Supabase: confirmacion de cuenta o recuperacion */
+  history.replaceState(null,'',location.pathname+location.search);
+  (async()=>{
+    const u=await sbGetUser(sbHash.access_token);
+    if(!u){showAuthPane('auth');$('#a-err').textContent='El enlace ha caducado o no es válido. Pide uno nuevo.';return}
+    sbSetSession({access_token:sbHash.access_token,refresh_token:sbHash.refresh_token,expires_at:sbHash.expires_at,user:u});
+    if(sbHash.type==='recovery'){
+      showAuthPane('newpass');
+    }else{
+      await enterCloud(u,false);
+    }
+  })();
+}else{
 const sbS=typeof sbSession==='function'?sbSession():null;
 if(sbS&&sbS.user){
   me=sbS.user.id;data=store.data(me)||blankData();normalize();
   showApp(sbS.user.email||'');
   sbLoadData().then(r=>{if(r.ok&&r.payload){data=Object.assign(blankData(),r.payload);normalize();store.saveData(me,data);syncSettingsUI();renderAll()}cloudReady=!!r.ok}).catch(()=>{});
   sbLoadProfile().then(p=>{if(p.ok)isPro=p.pro}).catch(()=>{});
+}
 }
 if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(()=>{})}
