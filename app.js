@@ -378,7 +378,7 @@ async function offerMigration(){
   const r=await sbSaveData(data).catch(()=>null);
   if(!r||!r.ok)notice('Sin conexión','No se pudieron subir ahora. Se quedan en este navegador y se subirán en la próxima sincronización.');
 }
-$('#btn-out').onclick=async()=>{stopTimer();try{await sbLogout()}catch(e){}me=null;data=null;store.setSession(null);$('#app').classList.add('hidden');$('#auth').classList.remove('hidden');$('#a-pass').value=''};
+$('#btn-out').onclick=async()=>{stopTimer();try{await sbLogout()}catch(e){}me=null;data=null;store.setSession(null);try{$$('.driver-popover').forEach(x=>x.remove());const dov=$('.driver-overlay');if(dov)dov.remove()}catch(e){}$('#app').classList.add('hidden');$('#auth').classList.remove('hidden');$('#a-pass').value='';showAuthPane('auth')};
 
 /* ---------- nav ---------- */
 function switchView(v){
