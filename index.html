@@ -128,8 +128,16 @@ main{flex:1;padding:20px;max-width:1100px;width:100%;margin:0 auto}
 .pomo-acts{display:flex;gap:10px}
 .stats{display:flex;gap:22px;color:var(--mut);font-size:13px;font-family:var(--mono)}
 .stats b{color:var(--acc);font-size:16px}
-.dur{display:flex;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:12px;color:var(--mut)}
-.dur input{width:56px;padding:5px 8px;font-size:13px}
+.dur{display:flex;gap:14px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 16px;font-size:12px;color:var(--mut);flex-wrap:wrap;justify-content:center}
+.dur-t{font-family:var(--mono)}
+.dur-c{display:flex;align-items:center;gap:6px}
+.step{display:inline-flex;align-items:center;gap:2px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:2px}
+.step button{width:26px;height:26px;border-radius:7px;color:var(--acc);font-size:15px;font-weight:700;line-height:1}
+.step button:hover{background:var(--acc);color:#052e1f}
+.step input{width:40px;padding:4px 2px;font-size:14px;text-align:center;background:transparent;border:0;font-family:var(--mono);color:var(--txt)}
+.step input:focus{outline:none}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
 
 /* ---------- IA ---------- */
 .ia-box{max-width:520px;margin:40px auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:34px;text-align:center}
@@ -270,10 +278,10 @@ main{flex:1;padding:20px;max-width:1100px;width:100%;margin:0 auto}
           <span>min semana<br><b id="st-min-week">0</b></span>
         </div>
         <div class="dur">
-          duración (min):
-          enfoque <input type="number" id="d-focus" min="1" max="120" value="25">
-          descanso <input type="number" id="d-short" min="1" max="60" value="5">
-          largo <input type="number" id="d-long" min="1" max="90" value="15">
+          <span class="dur-t">duración (min)</span>
+          <span class="dur-c">enfoque <span class="step"><button data-m="focus" data-d="-1">−</button><input id="d-focus" inputmode="numeric" value="25"><button data-m="focus" data-d="1">+</button></span></span>
+          <span class="dur-c">descanso <span class="step"><button data-m="short" data-d="-1">−</button><input id="d-short" inputmode="numeric" value="5"><button data-m="short" data-d="1">+</button></span></span>
+          <span class="dur-c">largo <span class="step"><button data-m="long" data-d="-1">−</button><input id="d-long" inputmode="numeric" value="15"><button data-m="long" data-d="1">+</button></span></span>
         </div>
       </div>
     </section>
@@ -321,6 +329,18 @@ main{flex:1;padding:20px;max-width:1100px;width:100%;margin:0 auto}
   </div>
 </div>
 
+<!-- modal confirmación/aviso -->
+<div class="overlay hidden" id="overlay-ask">
+  <div class="modal">
+    <h3 id="ask-title">¿Seguro?</h3>
+    <p class="mut" id="ask-msg" style="font-size:13px;line-height:1.5"></p>
+    <div class="acts">
+      <button class="btn ghost" id="ask-no">Cancelar</button>
+      <button class="btn warn" id="ask-yes">Borrar</button>
+    </div>
+  </div>
+</div>
+
 <!-- modal clase -->
 <div class="overlay hidden" id="overlay">
   <div class="modal">
@@ -350,6 +370,24 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const H0=8, H1=22, HOUR=60; // calendario 8:00-22:00, 60px/hora
 const DAYS=['LUN','MAR','MIE','JUE','VIE'];
 const COLORS=['#34d399','#60a5fa','#f472b6','#fbbf24','#a78bfa'];
+
+/* ---------- diálogos propios ---------- */
+function ask(o){
+  return new Promise(res=>{
+    $('#ask-title').textContent=o.title||'¿Seguro?';
+    $('#ask-msg').textContent=o.msg||'';
+    const y=$('#ask-yes');y.textContent=o.yes||'Borrar';
+    y.className=o.danger===false?'btn':'btn warn';
+    $('#ask-no').style.display=o.no===null?'none':'';
+    $('#ask-no').textContent=o.no||'Cancelar';
+    $('#overlay-ask').classList.remove('hidden');
+    const done=v=>{$('#overlay-ask').classList.add('hidden');res(v)};
+    y.onclick=()=>done(true);
+    $('#ask-no').onclick=()=>done(false);
+    $('#overlay-ask').onclick=e=>{if(e.target.id==='overlay-ask')done(false)};
+  });
+}
+function notice(title,msg){return ask({title,msg,yes:'Vale',no:null,danger:false})}
 
 /* ---------- storage ---------- */
 const store={
@@ -476,7 +514,7 @@ function openModal(c){
 $('#btn-add-class').onclick=()=>openModal(null);
 $('#m-cancel').onclick=()=>$('#overlay').classList.add('hidden');
 $('#overlay').onclick=e=>{if(e.target.id==='overlay')$('#overlay').classList.add('hidden')};
-$('#m-del').onclick=()=>{if(confirm('¿Borrar esta clase?')){data.classes=data.classes.filter(c=>c.id!==editId);save();$('#overlay').classList.add('hidden');renderCal()}};
+$('#m-del').onclick=async()=>{if(await ask({title:'¿Borrar esta clase?',msg:'Se quita del horario.'})){data.classes=data.classes.filter(c=>c.id!==editId);save();$('#overlay').classList.add('hidden');renderCal()}};
 $('#m-save').onclick=()=>{
   const name=$('#m-name').value.trim(),day=+$('#m-day').value,start=$('#m-start').value,end=$('#m-end').value;
   if(!name){$('#m-err').textContent='Ponle un nombre';return}
@@ -525,9 +563,9 @@ $('#btn-new-note').onclick=()=>{
   const n={id:Date.now(),title:'',body:'',updated:Date.now()};
   data.notes.push(n);save();openNote(n.id);$('#note-title').focus();
 };
-$('#btn-del-note').onclick=()=>{
+$('#btn-del-note').onclick=async()=>{
   if(curNote==null)return;
-  if(!confirm('¿Borrar este apunte?'))return;
+  if(!await ask({title:'¿Borrar este apunte?',msg:'No se puede deshacer.'}))return;
   data.notes=data.notes.filter(n=>n.id!==curNote);curNote=null;
   $('#note-title').value='';$('#note-body').value='';
   $('#notes').classList.add('m-show-list');save();renderNotes();
@@ -567,7 +605,7 @@ function renderDeadlines(){
     row.innerHTML='<button class="dl-ok">'+(d.done?'✓':'')+'</button><div class="grow"><b></b><span class="dl-when">'+new Date(d.due).toLocaleString('es-ES',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+'</span></div><span class="dl-left'+(soon?' soon':'')+(late?' late':'')+'">'+(d.done?'hecha':fmtLeft(left))+'</span><button class="dl-x">✕</button>';
     row.querySelector('b').textContent=d.name;
     row.querySelector('.dl-ok').onclick=()=>{d.done=!d.done;save();renderDeadlines()};
-    row.querySelector('.dl-x').onclick=()=>{if(confirm('¿Borrar esta entrega?')){data.deadlines=data.deadlines.filter(x=>x.id!==d.id);save();renderDeadlines()}};
+    row.querySelector('.dl-x').onclick=async()=>{if(await ask({title:'¿Borrar esta entrega?',msg:d.name})){data.deadlines=data.deadlines.filter(x=>x.id!==d.id);save();renderDeadlines()}};
     box.appendChild(row);
   });
   $('#dl-empty').classList.toggle('hidden',data.deadlines.length>0);
@@ -616,8 +654,8 @@ $('#acc-file').onchange=e=>{
   }catch(x){$('#acc-err').textContent='Ese archivo no vale. Tiene que ser un JSON exportado desde StudyFlow.'}};
   r.readAsText(f);e.target.value='';
 };
-$('#acc-wipe').onclick=()=>{
-  if(!confirm('¿Seguro? Se borran tu horario, entregas, apuntes y estadísticas de este navegador.'))return;
+$('#acc-wipe').onclick=async()=>{
+  if(!await ask({title:'¿Borrar todos tus datos?',msg:'Se borran tu horario, entregas, apuntes y estadísticas de este navegador.',yes:'Borrar todo'}))return;
   data=blankData();save();syncSettingsUI();renderAll();$('#overlay-acc').classList.add('hidden');
 };
 
@@ -625,8 +663,15 @@ $('#acc-wipe').onclick=()=>{
 const P={mode:'focus',left:25*60,total:25*60,running:false,int:null};
 function durFor(m){return (data.settings[m]||25)*60}
 function syncSettingsUI(){$('#d-focus').value=data.settings.focus;$('#d-short').value=data.settings.short;$('#d-long').value=data.settings.long}
+function setDur(m,v){
+  const lim={focus:180,short:60,long:90}[m];
+  v=Math.max(1,Math.min(lim,Math.round(+v)||1));
+  data.settings[m]=v;$('#d-'+m).value=v;save();
+  if(P.mode===m&&!P.running)setMode(m);
+}
+$$('.step button').forEach(b=>b.onclick=()=>setDur(b.dataset.m,(parseInt($('#d-'+b.dataset.m).value,10)||0)+(+b.dataset.d)));
 ['focus','short','long'].forEach(m=>{
-  $('#d-'+m).onchange=e=>{let v=Math.max(1,Math.min(180,+e.target.value||25));data.settings[m]=v;e.target.value=v;save();if(P.mode===m&&!P.running)setMode(m)};
+  $('#d-'+m).onchange=e=>setDur(m,e.target.value);
 });
 $$('#modes button').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
 function setMode(m){
@@ -662,7 +707,7 @@ $('#btn-start').onclick=()=>{
         save();
       }
       beep();renderPomo();
-      alert(P.mode==='focus'?'¡Enfoque terminado! Toca un descanso.':'Descanso terminado. ¡A por otro!');
+      notice(P.mode==='focus'?'¡Enfoque terminado!':'Descanso terminado',P.mode==='focus'?'Toca un descanso.':'¡A por otro!');
       setMode(P.mode==='focus'?'short':'focus');
     }
   },1000);
