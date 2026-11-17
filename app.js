@@ -205,7 +205,7 @@ const store={
   setSession(n){n?localStorage.setItem('sf_session',n):localStorage.removeItem('sf_session')}
 };
 function blankData(){return {classes:[],deadlines:[],notes:[],pomos:{total:0,days:{},mins:{},totalMin:0},settings:{focus:25,short:5,long:15,remindDef:null}}}
-let me=null, data=null, isPro=false;
+let me=null, data=null, isPro=false, cloudReady=false;
 function save(){store.saveData(me,data);cloudPush()}
 let cloudT=null;
 function cloudPush(){
@@ -259,8 +259,9 @@ function showApp(email){
 /* ---------- tour primera vez (driver.js) ---------- */
 function maybeStartTour(tries){
   if(!me)return;
-  if(localStorage.getItem('sf_tour_v1')==='1')return;
+  if(localStorage.getItem('sf_tour_v1')==='1'||(data&&data.tourDone))return;
   if(!window.driver||!window.driver.js)return;
+  if(!cloudReady){if((tries||0)<6)setTimeout(()=>maybeStartTour((tries||0)+1),2500);return}
   if(!$('#overlay-ask').classList.contains('hidden')){if((tries||0)<4)setTimeout(()=>maybeStartTour((tries||0)+1),3000);return}
   const mob=window.matchMedia('(max-width:760px)').matches;
   const steps=[
@@ -280,7 +281,7 @@ function maybeStartTour(tries){
     doneBtnText:'Empezar',
     steps:steps,
     onDeselected:(el,step,opts)=>{const nx=opts.config.steps[opts.state.activeIndex+1];if(nx&&nx.view)switchView(nx.view)},
-    onDestroyed:()=>{localStorage.setItem('sf_tour_v1','1');switchView('horario')}
+    onDestroyed:()=>{localStorage.setItem('sf_tour_v1','1');if(data){data.tourDone=1;save();if(typeof sbSaveData==='function')sbSaveData(data).catch(()=>{})}switchView('horario')}
   });
   drv.drive();
 }
@@ -302,8 +303,10 @@ async function enterCloud(user,isNew){
         else await offerMigration();
       }
     }catch(ex){/* seguimos con la copia local */}
+    cloudReady=true;
   }else{
     await offerMigration();
+    cloudReady=true;
   }
   sbLoadProfile().then(p=>{if(p.ok)isPro=p.pro}).catch(()=>{});
 }
@@ -785,7 +788,7 @@ const sbS=typeof sbSession==='function'?sbSession():null;
 if(sbS&&sbS.user){
   me=sbS.user.id;data=store.data(me)||blankData();normalize();
   showApp(sbS.user.email||'');
-  sbLoadData().then(r=>{if(r.ok&&r.payload){data=Object.assign(blankData(),r.payload);normalize();store.saveData(me,data);syncSettingsUI();renderAll()}}).catch(()=>{});
+  sbLoadData().then(r=>{if(r.ok&&r.payload){data=Object.assign(blankData(),r.payload);normalize();store.saveData(me,data);syncSettingsUI();renderAll()}cloudReady=true}).catch(()=>{cloudReady=true});
   sbLoadProfile().then(p=>{if(p.ok)isPro=p.pro}).catch(()=>{});
 }
 if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(()=>{})}
