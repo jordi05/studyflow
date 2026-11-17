@@ -719,7 +719,7 @@ $('#acc-file').onchange=e=>{
 };
 $('#acc-wipe').onclick=async()=>{
   if(!await ask({title:'¿Borrar todos tus datos?',msg:'Se borran tu horario, entregas, apuntes y estadísticas de este navegador.',yes:'Borrar todo'}))return;
-  data=blankData();save();syncSettingsUI();renderAll();$('#overlay-acc').classList.add('hidden');
+  const tourDone=data&&data.tourDone;data=blankData();if(tourDone)data.tourDone=1;save();syncSettingsUI();renderAll();$('#overlay-acc').classList.add('hidden');
 };
 
 /* ---------- pomodoro ---------- */
