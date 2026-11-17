@@ -10,6 +10,7 @@ Tema oscuro o claro con acentos personalizables, funciona en móvil y ordenador,
 - **Cuentas reales con email**: registro e inicio de sesión con email y contraseña (Supabase Auth). Tus datos se sincronizan con tu cuenta y los tienes en todos tus dispositivos.
 - **Sincronización automática**: cada cambio se guarda primero en el navegador (funciona sin conexión) y se sube a la nube en segundo plano. Al entrar desde otro dispositivo se descarga tu versión de la nube.
 - **Migración desde la fase 1**: si tenías datos locales de antes, la app te ofrece subirlos a tu cuenta la primera vez que entras.
+- **Guía de primera visita**: la primera vez que entras con tu cuenta, un tour guiado te enseña el menú, el horario, las entregas, los apuntes, el pomodoro y la personalización. Puedes saltarlo y no vuelve a aparecer (hecho con [driver.js](https://driverjs.com/), licencia MIT, copia local en este repo).
 - **Horario semanal**: añade clases con día, hora y color. Toca un bloque para editarlo o borrarlo. En móvil se ve día a día.
 - **Entregas**: con cuenta atrás (quedan 2d 4h), marcar como hechas y aviso en rojo si queda menos de un día.
 - **Apuntes**: crea, busca, edita y borra notas. Se guardan solas mientras escribes.
@@ -26,7 +27,7 @@ Tema oscuro o claro con acentos personalizables, funciona en móvil y ordenador,
 - **Row Level Security** en todas las tablas: cada usuario solo puede leer y escribir sus propios datos. La marca Pro solo la puede cambiar el servidor, nunca el cliente.
 - El repo solo contiene la **clave publicable** de Supabase, pensada para ir en el frontend. La clave secreta no está en el repo ni se usa en la app.
 - Contraseñas gestionadas por Supabase Auth (hash en servidor); nunca pasan por el repo ni se guardan en claro.
-- Content Security Policy (`script-src 'self'`), cero dependencias externas de código: todo el JavaScript es propio y visible en este repo.
+- Content Security Policy (`script-src 'self'`), sin dependencias externas servidas desde terceros: todo el JavaScript se sirve desde este repo (propio, más una copia local de driver.js, licencia MIT).
 - La importación de JSON valida y sanea todos los campos.
 
 ## Roadmap
