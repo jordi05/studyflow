@@ -123,6 +123,12 @@ main{flex:1;padding:20px;max-width:1100px;width:100%;margin:0 auto}
 .note-item.on{background:var(--panel2);border-color:var(--acc-dim)}
 .note-item b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .note-item small{color:var(--mut);font-size:11px}
+.subj-tag{display:block;font-weight:600}
+.subj-filter{margin-bottom:8px}
+.subj-edit{width:auto;flex:0 0 auto;max-width:140px;padding:8px 10px;font-size:13px}
+.blk-edit{position:absolute;top:4px;right:4px;padding:5px;color:var(--mut);opacity:.75;border-radius:6px}
+.blk-edit:hover{color:var(--txt);opacity:1;background:var(--panel)}
+.m-cls .blk-edit{position:static;opacity:1}
 .notes-edit{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
 .notes-edit textarea{flex:1;min-height:280px;resize:vertical;font-family:var(--mono);font-size:13px;line-height:1.6}
 .edit-bar{display:flex;gap:8px;align-items:center}
@@ -299,13 +305,15 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
       </div>
       <div class="notes m-show-list" id="notes">
         <div class="notes-list">
+          <select id="note-filter" class="subj-filter" title="Filtrar por asignatura"></select>
           <input id="note-search" placeholder="Buscar apuntes...">
           <div id="note-items"></div>
         </div>
         <div class="notes-edit">
           <div class="edit-bar">
             <button class="btn ghost backbtn" id="btn-back-notes">← Apuntes</button>
-            <input id="note-title" placeholder="Título del apunte" style="flex:1">
+            <input id="note-title" placeholder="Título del apunte" style="flex:1;min-width:0">
+            <select id="note-subj" class="subj-edit" title="Asignatura del apunte"></select>
             <span class="saved hidden" id="note-saved">guardado</span>
             <button class="btn warn" id="btn-del-note">Borrar</button>
           </div>
