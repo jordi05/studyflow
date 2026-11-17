@@ -14,9 +14,16 @@ Tema oscuro o claro con acentos personalizables, funciona en móvil y ordenador,
 - **Pomodoro**: enfoque y descansos configurables, contador de sesiones y minutos de enfoque de hoy y de la semana.
 - **Avisos**: notificación al terminar el pomodoro y recordatorios de entregas (10 min, 1 h, 1 día antes o personalizado). Llegan con la app abierta; con la app cerrada solo si la instalas en pantalla de inicio (iPhone: iOS 16.4+), y sin servidor no están garantizados.
 - **Selector de fecha y hora propio**: mini calendario y hora con botones −/+, en tema oscuro, sin los selectores blancos del navegador.
-- **Personalización**: modo oscuro/claro y color de acento desde la pantalla de entrada (o el botón 🎨). Sección **Pro** (gratis en beta): más acentos y color personalizado en hex.
+- **Personalización**: modo oscuro/claro y color de acento desde la pantalla de entrada (o el icono de la paleta, arriba a la derecha). Sección **Pro** (gratis en beta): más acentos y color personalizado en hex.
 - **Exportar / importar** tus datos en JSON (tocando tu avatar), para cambiar de dispositivo.
 - **Datos de ejemplo** con un botón, para probarla rápido.
+
+## Seguridad
+
+- Sin servidor: los datos no salen del navegador (localStorage). Nada va a terceros.
+- Contraseñas con hash PBKDF2-SHA-256 (100.000 iteraciones, sal aleatoria por usuario); nunca se guardan en claro.
+- Content Security Policy (`script-src 'self'`), cero dependencias externas: todo el código es propio y visible en este repo.
+- La importación de JSON valida y sanea todos los campos.
 
 ## Roadmap
 
