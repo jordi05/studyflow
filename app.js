@@ -13,6 +13,7 @@ const isHex6=s=>/^#[0-9a-fA-F]{6}$/.test(s);
 function lum(hex){const n=parseInt(hex.slice(1),16);return (0.299*(n>>16&255)+0.587*(n>>8&255)+0.114*(n&255))/255}
 function mixHex(a,b,f){const x=parseInt(a.slice(1),16),y=parseInt(b.slice(1),16);const m=(p,q)=>Math.round(p*(1-f)+q*f);return '#'+((1<<24)+(m(x>>16&255,y>>16&255)<<16)+(m(x>>8&255,y>>8&255)<<8)+m(x&255,y&255)).toString(16).slice(1)}
 function hexA(hex,a){const n=parseInt(hex.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')'}
+const themeEff={};
 function applyTheme(){
   const t=getTheme(),el=document.documentElement,st=el.style;
   el.dataset.theme=t.mode;
@@ -29,6 +30,7 @@ function applyTheme(){
   if(ok('line'))st.setProperty('--line',u.line);
   if(ok('hdr'))st.setProperty('--hdrbg',hexA(u.hdr,0.85));
   else if(ok('bg'))st.setProperty('--hdrbg',hexA(u.bg,0.85));
+  themeEff.bg=bg;themeEff.panel=ok('panel')?u.panel:def('--panel');themeEff.txt=ok('txt')?u.txt:def('--txt');themeEff.line=ok('line')?u.line:def('--line');themeEff.hdr=ok('hdr')?u.hdr:bg;
 }
 function saveTheme(t){localStorage.setItem('sf_theme',JSON.stringify(t))}
 const UI_PRESETS={
@@ -48,7 +50,7 @@ function renderThemePanel(){
   const u=t.ui||{};
   $$('#th-ui .th-row').forEach(row=>{
     const v=row.dataset.var,sw=row.querySelector('.swatches'),inp=row.querySelector('input');
-    const cur=u[v]||'';
+    const cur=u[v]||themeEff[v]||'';
     sw.innerHTML='';
     UI_PRESETS[v].forEach(hex=>{
       const s=document.createElement('button');s.type='button';s.className='sw'+(cur.toLowerCase()===hex?' on':'');s.style.background=hex;
