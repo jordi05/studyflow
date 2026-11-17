@@ -10,6 +10,7 @@
 <meta name="theme-color" content="#070a09">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="stylesheet" href="driver.css?v=1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
@@ -208,6 +209,16 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .th-row .swatches{flex-basis:100%;order:3;display:flex;gap:8px}
 .th-row input{width:84px;flex:0 0 auto;padding:6px 8px;font-size:12px;font-family:var(--mono)}
 #th-reset{margin-top:12px;width:auto;font-size:13px;padding:9px 14px;align-self:flex-start}
+/* ---------- tour (driver.js) ---------- */
+.driver-popover{background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:14px;font-family:inherit;max-width:320px}
+.driver-popover-title{color:var(--txt);font-size:16px;font-weight:700}
+.driver-popover-description{color:var(--mut);font-size:13px;line-height:1.45}
+.driver-popover-next-btn{background:var(--acc);color:#052e1f;border:none;border-radius:9px;text-shadow:none;font-weight:700;padding:7px 14px;font-size:13px}
+.driver-popover-prev-btn{background:transparent;color:var(--mut);border:1px solid var(--line);border-radius:9px;text-shadow:none;padding:7px 12px;font-size:13px}
+.driver-popover-close-btn{color:var(--mut)}
+.driver-popover-progress-text{color:var(--mut);font-size:11px;font-family:var(--mono)}
+.driver-popover-footer{margin-top:12px}
+
 /* ---------- horario móvil ---------- */
 .cal-m{display:none}
 
@@ -545,7 +556,8 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 </div>
 
 <script data-goatcounter="https://studyflow.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<script src="driver.js?v=1"></script>
 <script src="sb.js?v=1"></script>
-<script src="app.js?v=10"></script>
+<script src="app.js?v=11"></script>
 </body>
 </html>
