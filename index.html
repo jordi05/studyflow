@@ -53,6 +53,9 @@ h1,h2,h3{font-weight:650}
 .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--txt)}
 .btn.warn{background:transparent;border:1px solid var(--danger);color:var(--danger)}
 .err{color:var(--danger);font-size:13px;min-height:16px;text-align:center}
+.err.ok{color:var(--acc)}
+.linklike{background:none;color:var(--mut);font-size:13px;text-decoration:underline;text-underline-offset:3px;padding:2px}
+.linklike:hover{color:var(--txt)}
 .foot{margin-top:16px;text-align:center;color:var(--mut);font-size:12px;font-family:var(--mono)}
 
 /* ---------- shell ---------- */
@@ -369,7 +372,7 @@ select option:checked{background:var(--acc-dim)}
       <b>Study<span>Flow</span></b>
     </div>
     <p class="tag">Tu horario, tus apuntes y tu enfoque. En un solo sitio.</p>
-    <div class="auth-tabs">
+    <div class="auth-tabs" id="auth-tabs">
       <button id="tab-login" class="on">Entrar</button>
       <button id="tab-reg">Crear cuenta</button>
     </div>
@@ -378,6 +381,21 @@ select option:checked{background:var(--acc-dim)}
       <input id="a-pass" type="password" placeholder="Contraseña (mín. 6)" autocomplete="current-password" required>
       <div class="err" id="a-err"></div>
       <button class="btn" id="a-go" type="submit">Entrar</button>
+      <button class="linklike" id="a-forgot" type="button">¿Olvidaste tu contraseña?</button>
+    </form>
+    <form id="form-reset" class="hidden" novalidate>
+      <p class="tag" style="margin-bottom:4px">Te enviamos un enlace para restablecer tu contraseña.</p>
+      <input id="r-name" type="email" placeholder="Email" autocomplete="email" maxlength="60" required>
+      <div class="err" id="r-err"></div>
+      <button class="btn" id="r-go" type="submit">Enviar enlace</button>
+      <button class="linklike" id="r-back" type="button">Volver a entrar</button>
+    </form>
+    <form id="form-newpass" class="hidden" novalidate>
+      <p class="tag" style="margin-bottom:4px">Escribe tu nueva contraseña.</p>
+      <input id="n-pass" type="password" placeholder="Nueva contraseña (mín. 6)" autocomplete="new-password" required>
+      <input id="n-pass2" type="password" placeholder="Repite la contraseña" autocomplete="new-password" required>
+      <div class="err" id="n-err"></div>
+      <button class="btn" id="n-go" type="submit">Guardar contraseña</button>
     </form>
     <button class="btn ghost" id="btn-theme" style="width:100%;margin-top:10px">Personalizar colores</button>
     <p class="foot">fase 2 beta · tus datos se sincronizan con tu cuenta</p>
@@ -686,7 +704,7 @@ select option:checked{background:var(--acc-dim)}
 
 <script data-goatcounter="https://studyflow.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <script src="driver.js?v=1"></script>
-<script src="sb.js?v=1"></script>
-<script src="app.js?v=22"></script>
+<script src="sb.js?v=2"></script>
+<script src="app.js?v=23"></script>
 </body>
   </html>
