@@ -162,36 +162,16 @@ const store={
   setSession(n){n?localStorage.setItem('sf_session',n):localStorage.removeItem('sf_session')}
 };
 function blankData(){return {classes:[],deadlines:[],notes:[],pomos:{total:0,days:{},mins:{},totalMin:0},settings:{focus:25,short:5,long:15,remindDef:null}}}
-async function hashLegacy(s){
-  if(window.crypto&&crypto.subtle){try{
-    const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
-    return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
-  }catch(e){}}
-  let h=7;for(const c of s)h=(h*31+c.charCodeAt(0))|0;return 'f'+h;
-}
-const PBKDF2_ITER=100000;
-const b64=u8=>btoa(String.fromCharCode(...u8));
-const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
-async function pbkdf2(pass,saltB64,iter){
-  const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(pass),'PBKDF2',false,['deriveBits']);
-  const bits=await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:unb64(saltB64),iterations:iter},key,256);
-  return b64(new Uint8Array(bits));
-}
-async function makeHash(pass){
-  if(!(window.crypto&&crypto.subtle&&crypto.getRandomValues))return hashLegacy(pass);
-  const salt=b64(crypto.getRandomValues(new Uint8Array(16)));
-  return 'v2$'+PBKDF2_ITER+'$'+salt+'$'+await pbkdf2(pass,salt,PBKDF2_ITER);
-}
-async function verifyPass(pass,stored){
-  stored=String(stored||'');
-  if(stored.startsWith('v2$')){try{const p=stored.split('$');return (await pbkdf2(pass,p[2],+p[1]))===p[3]}catch(e){return false}}
-  return (await hashLegacy(pass))===stored;
+let me=null, data=null, isPro=false;
+function save(){store.saveData(me,data);cloudPush()}
+let cloudT=null;
+function cloudPush(){
+  if(!me||typeof sbSaveData!=='function')return;
+  clearTimeout(cloudT);
+  cloudT=setTimeout(()=>{sbSaveData(data).catch(()=>{})},800);
 }
 
-let me=null, data=null;
-function save(){store.saveData(me,data)}
-
-/* ---------- auth ---------- */
+/* ---------- auth (Supabase, fase 2) ---------- */
 let authMode='login';
 function setAuthMode(m){
   authMode=m;
@@ -204,33 +184,77 @@ $('#tab-login').onclick=()=>setAuthMode('login');
 $('#tab-reg').onclick=()=>setAuthMode('reg');
 $('#form-auth').onsubmit=async e=>{
   e.preventDefault();
-  const name=$('#a-name').value.trim(), pass=$('#a-pass').value;
-  const users=store.users(), key=Object.keys(users).find(k=>k.toLowerCase()===name.toLowerCase());
-  if(!/^[a-zA-Z0-9_.-]{3,20}$/.test(name)){$('#a-err').textContent='Usuario de 3-20 letras, números o _ . -';return}
-  if(pass.length<4){$('#a-err').textContent='Contraseña de al menos 4 caracteres';return}
-  if(authMode==='reg'){
-    if(key){$('#a-err').textContent='Ese usuario ya existe en este navegador';return}
-    users[name]={h:await makeHash(pass),created:Date.now()};store.saveUsers(users);
-    store.saveData(name,blankData());
-    enter(name);
-  }else{
-    if(!key){$('#a-err').textContent='Ese usuario no existe en este navegador. Crea la cuenta primero.';return}
-    if(!(await verifyPass(pass,users[key].h))){$('#a-err').textContent='Contraseña incorrecta';return}
-    if(!String(users[key].h).startsWith('v2$')&&window.crypto&&crypto.subtle){users[key].h=await makeHash(pass);store.saveUsers(users)}
-    enter(key);
-  }
+  const email=$('#a-name').value.trim().toLowerCase(), pass=$('#a-pass').value;
+  const err=m=>{$('#a-err').textContent=m};
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){err('Escribe un email válido');return}
+  if(pass.length<6){err('Contraseña de al menos 6 caracteres');return}
+  $('#a-go').disabled=true;err('');
+  try{
+    const r=authMode==='reg'?await sbSignup(email,pass):await sbLogin(email,pass);
+    if(!r.ok){err(r.error);return}
+    if(r.needsConfirm){err('Cuenta creada. Revisa tu email para confirmarla.');return}
+    await enterCloud(r.user,authMode==='reg');
+  }catch(ex){err('Sin conexión. Inténtalo de nuevo en un momento.')}
+  finally{$('#a-go').disabled=false}
 };
-function enter(name){
-  me=name;data=store.data(name)||blankData();store.setSession(name);
+function normalize(){
+  data.classes=data.classes||[];
   data.deadlines=data.deadlines||[];
+  data.notes=(data.notes||[]).map(n=>{n.subject=typeof n.subject==='string'&&n.subject.trim()?n.subject.trim().slice(0,40):null;return n});
+  data.pomos=data.pomos||{total:0,days:{},mins:{},totalMin:0};
   data.pomos.mins=data.pomos.mins||{};
   if(data.pomos.totalMin==null)data.pomos.totalMin=0;
+  data.settings=Object.assign({focus:25,short:5,long:15,remindDef:null},data.settings||{});
+}
+function showApp(email){
   $('#auth').classList.add('hidden');$('#app').classList.remove('hidden');
-  $('#u-name').textContent=name;$('#u-av').textContent=name[0].toUpperCase();
-  data.notes.forEach(n=>{n.subject=typeof n.subject==='string'&&n.subject.trim()?n.subject.trim().slice(0,40):null});
+  $('#u-name').textContent=email;$('#u-av').textContent=(email[0]||'?').toUpperCase();
   syncSettingsUI();renderAll();
 }
-$('#btn-out').onclick=()=>{stopTimer();me=null;store.setSession(null);$('#app').classList.add('hidden');$('#auth').classList.remove('hidden');$('#a-pass').value=''};
+async function enterCloud(user,isNew){
+  me=user.id;
+  data=store.data(me)||blankData();
+  normalize();
+  store.setSession(me);store.saveData(me,data);
+  showApp(user.email||'');
+  if(!isNew){
+    try{
+      const r=await sbLoadData();
+      if(r.ok&&r.payload){
+        data=Object.assign(blankData(),r.payload);normalize();
+        store.saveData(me,data);syncSettingsUI();renderAll();
+      }else if(r.ok){
+        const local=store.data(me);
+        if(local&&(local.classes.length||local.deadlines.length||local.notes.length)){sbSaveData(local).catch(()=>{})}
+        else await offerMigration();
+      }
+    }catch(ex){/* seguimos con la copia local */}
+  }else{
+    await offerMigration();
+  }
+  sbLoadProfile().then(p=>{if(p.ok)isPro=p.pro}).catch(()=>{});
+}
+function findLegacyData(){
+  try{
+    const users=store.users();
+    const legacy=store.session();
+    if(legacy&&users[legacy]&&store.data(legacy))return{name:legacy,d:store.data(legacy)};
+    const ks=Object.keys(users);
+    if(ks.length===1&&store.data(ks[0]))return{name:ks[0],d:store.data(ks[0])};
+  }catch(e){}
+  return null;
+}
+async function offerMigration(){
+  const lg=findLegacyData();
+  if(!lg)return;
+  const yes=await ask({title:'¿Subir tus datos locales?',msg:'En este navegador había datos de "'+lg.name+'". ¿Los subimos a tu cuenta para tenerlos en todos tus dispositivos?'});
+  if(!yes)return;
+  data=Object.assign(blankData(),lg.d);normalize();
+  store.saveData(me,data);syncSettingsUI();renderAll();
+  const r=await sbSaveData(data).catch(()=>null);
+  if(!r||!r.ok)notice('Sin conexión','No se pudieron subir ahora. Se quedan en este navegador y se subirán en la próxima sincronización.');
+}
+$('#btn-out').onclick=async()=>{stopTimer();try{await sbLogout()}catch(e){}me=null;data=null;store.setSession(null);$('#app').classList.add('hidden');$('#auth').classList.remove('hidden');$('#a-pass').value=''};
 
 /* ---------- nav ---------- */
 function switchView(v){
@@ -631,6 +655,11 @@ function beep(){try{
 
 /* ---------- init ---------- */
 function renderAll(){fillSubjSelects();renderCal();renderDeadlines();renderNotes();setMode(P.mode);checkReminders()}
-const sess=store.session();
-if(sess&&store.users()[sess])enter(sess);
+const sbS=typeof sbSession==='function'?sbSession():null;
+if(sbS&&sbS.user){
+  me=sbS.user.id;data=store.data(me)||blankData();normalize();
+  showApp(sbS.user.email||'');
+  sbLoadData().then(r=>{if(r.ok&&r.payload){data=Object.assign(blankData(),r.payload);normalize();store.saveData(me,data);syncSettingsUI();renderAll()}}).catch(()=>{});
+  sbLoadProfile().then(p=>{if(p.ok)isPro=p.pro}).catch(()=>{});
+}
 if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(()=>{})}
