@@ -141,6 +141,25 @@ main{flex:1;padding:20px;max-width:1100px;width:100%;margin:0 auto}
 input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 input[type=number]{-moz-appearance:textfield;appearance:textfield}
 
+/* ---------- selector fecha/hora ---------- */
+.dt-btn{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;color:var(--txt);font:inherit;text-align:left}
+.dt-btn.ph span:first-child{color:var(--mut)}
+.dt-btn .dt-ico{color:var(--acc);font-size:14px}
+.dt-head{display:flex;align-items:center;justify-content:space-between}
+.dt-head b{font-size:14px}
+.dt-head button{width:30px;height:30px;border-radius:8px;color:var(--acc);font-size:16px;font-weight:700;line-height:1}
+.dt-head button:hover{background:var(--panel2)}
+.dt-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.dt-dow{text-align:center;font-size:10px;color:var(--mut);padding:2px 0}
+.dt-day{aspect-ratio:1;border-radius:8px;font-size:13px;color:var(--txt);font-family:var(--mono);line-height:1}
+.dt-day:hover{background:var(--panel2)}
+.dt-day.off{color:var(--mut);opacity:.35}
+.dt-day.today{outline:1px solid var(--acc-dim)}
+.dt-day.on{background:var(--acc);color:#052e1f;font-weight:700}
+.dt-time{display:flex;align-items:center;justify-content:center;gap:10px}
+.dt-time .step input{width:34px;font-size:16px}
+.dt-sep{font-family:var(--mono);font-size:18px;color:var(--mut)}
+
 /* ---------- IA ---------- */
 .ia-box{max-width:520px;margin:40px auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:34px;text-align:center}
 .ia-box .lock{width:52px;height:52px;margin:0 auto 14px;border-radius:14px;background:var(--panel2);border:1px solid var(--acc-dim);display:flex;align-items:center;justify-content:center;color:var(--acc)}
@@ -306,7 +325,8 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
     <h3>Nueva entrega</h3>
     <input id="dl-name" placeholder="¿Qué tienes que entregar?" maxlength="60">
     <label class="mut" style="font-size:12px">Fecha y hora límite</label>
-    <input id="dl-due" type="datetime-local">
+    <input type="hidden" id="dl-due">
+    <button type="button" class="dt-btn ph" id="dl-due-btn"><span>Elige fecha y hora</span><span class="dt-ico">📅</span></button>
     <label class="mut" style="font-size:12px">Aviso</label>
     <select id="dl-rem">
       <option value="">Sin aviso</option>
@@ -367,8 +387,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
       <option value="3">Jueves</option><option value="4">Viernes</option>
     </select>
     <div class="row2">
-      <input id="m-start" type="time" value="09:00">
-      <input id="m-end" type="time" value="10:00">
+      <input type="hidden" id="m-start" value="09:00">
+      <input type="hidden" id="m-end" value="10:00">
+      <button type="button" class="dt-btn" id="m-start-btn"><span>09:00</span><span class="dt-ico">🕐</span></button>
+      <button type="button" class="dt-btn" id="m-end-btn"><span>10:00</span><span class="dt-ico">🕐</span></button>
     </div>
     <div class="swatches" id="m-colors"></div>
     <div class="err" id="m-err"></div>
@@ -380,12 +402,103 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
   </div>
 </div>
 
+<!-- selector fecha/hora -->
+<div class="overlay hidden" id="overlay-dt">
+  <div class="modal">
+    <h3 id="dt-title">Elige fecha y hora</h3>
+    <div id="dt-cal-wrap" style="display:flex;flex-direction:column;gap:10px">
+      <div class="dt-head">
+        <button type="button" id="dt-prev">‹</button>
+        <b id="dt-month"></b>
+        <button type="button" id="dt-next">›</button>
+      </div>
+      <div class="dt-cal" id="dt-cal"></div>
+    </div>
+    <div class="dt-time">
+      <span class="step"><button type="button" id="dt-h-m">−</button><input id="dt-h" inputmode="numeric"><button type="button" id="dt-h-p">+</button></span>
+      <span class="dt-sep">:</span>
+      <span class="step"><button type="button" id="dt-m-m">−</button><input id="dt-m" inputmode="numeric"><button type="button" id="dt-m-p">+</button></span>
+    </div>
+    <div class="acts">
+      <button class="btn ghost" id="dt-cancel">Cancelar</button>
+      <button class="btn" id="dt-ok">Aceptar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 'use strict';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const H0=8, H1=22, HOUR=60; // calendario 8:00-22:00, 60px/hora
 const DAYS=['LUN','MAR','MIE','JUE','VIE'];
 const COLORS=['#34d399','#60a5fa','#f472b6','#fbbf24','#a78bfa'];
+
+/* ---------- selector fecha/hora ---------- */
+const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const MESES_S=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+let dtCb=null,dtDate=null,dtTimeOnly=false,dtViewY=0,dtViewM=0;
+function pad(n){return String(n).padStart(2,'0')}
+function fmtDTBtn(v){const d=new Date(v);return d.getDate()+' '+MESES_S[d.getMonth()]+', '+pad(d.getHours())+':'+pad(d.getMinutes())}
+function paintDt(inpId,timeOnly){
+  const v=$('#'+inpId).value,b=$('#'+inpId+'-btn');
+  if(!v){b.classList.add('ph');b.firstElementChild.textContent=timeOnly?'Elige hora':'Elige fecha y hora';return}
+  b.classList.remove('ph');b.firstElementChild.textContent=timeOnly?v:fmtDTBtn(v);
+}
+function openDt(inpId,timeOnly,title){
+  dtTimeOnly=timeOnly;$('#dt-title').textContent=title||(timeOnly?'Elige hora':'Elige fecha y hora');
+  $('#dt-cal-wrap').classList.toggle('hidden',timeOnly);
+  const v=$('#'+inpId).value;let d;
+  if(timeOnly){d=new Date();const p=(v||'09:00').split(':');d.setHours(+p[0],+p[1],0,0)}
+  else if(v)d=new Date(v);
+  else{d=new Date();d.setMinutes(0,0,0);d.setHours(d.getHours()+1)}
+  dtDate=d;dtViewY=d.getFullYear();dtViewM=d.getMonth();
+  dtCb=val=>{$('#'+inpId).value=val;paintDt(inpId,timeOnly)};
+  renderDt();$('#overlay-dt').classList.remove('hidden');
+}
+function renderDt(){
+  $('#dt-month').textContent=MESES[dtViewM]+' '+dtViewY;
+  const cal=$('#dt-cal');cal.innerHTML='';
+  ['L','M','X','J','V','S','D'].forEach(w=>{const e=document.createElement('span');e.className='dt-dow';e.textContent=w;cal.appendChild(e)});
+  const lead=(new Date(dtViewY,dtViewM,1).getDay()+6)%7;
+  const daysIn=new Date(dtViewY,dtViewM+1,0).getDate();
+  const prevIn=new Date(dtViewY,dtViewM,0).getDate();
+  const today=new Date();
+  const pick=(y,m,dd)=>{dtDate.setFullYear(y,m,dd);dtViewY=y;dtViewM=m;renderDt()};
+  for(let i=0;i<lead;i++){const b=document.createElement('button');b.type='button';b.className='dt-day off';b.textContent=prevIn-lead+1+i;
+    const y=dtViewM===0?dtViewY-1:dtViewY,m=dtViewM===0?11:dtViewM-1,dd=prevIn-lead+1+i;b.onclick=()=>pick(y,m,dd);cal.appendChild(b)}
+  for(let dd=1;dd<=daysIn;dd++){
+    const b=document.createElement('button');b.type='button';b.className='dt-day';b.textContent=dd;
+    if(dd===today.getDate()&&dtViewM===today.getMonth()&&dtViewY===today.getFullYear())b.classList.add('today');
+    if(dd===dtDate.getDate()&&dtViewM===dtDate.getMonth()&&dtViewY===dtDate.getFullYear())b.classList.add('on');
+    b.onclick=()=>pick(dtViewY,dtViewM,dd);cal.appendChild(b);
+  }
+  const trail=(7-(lead+daysIn)%7)%7;
+  for(let dd=1;dd<=trail;dd++){const b=document.createElement('button');b.type='button';b.className='dt-day off';b.textContent=dd;
+    const y=dtViewM===11?dtViewY+1:dtViewY,m=dtViewM===11?0:dtViewM+1;b.onclick=()=>pick(y,m,dd);cal.appendChild(b)}
+  $('#dt-h').value=pad(dtDate.getHours());$('#dt-m').value=pad(dtDate.getMinutes());
+}
+$('#dt-prev').onclick=()=>{dtViewM--;if(dtViewM<0){dtViewM=11;dtViewY--}renderDt()};
+$('#dt-next').onclick=()=>{dtViewM++;if(dtViewM>11){dtViewM=0;dtViewY++}renderDt()};
+function stepDt(unit,d){
+  if(unit==='h'){let h=(dtDate.getHours()+d+24)%24;dtDate.setHours(h);$('#dt-h').value=pad(h)}
+  else{let m=(dtDate.getMinutes()+d*5+60)%60;dtDate.setMinutes(m);$('#dt-m').value=pad(m)}
+}
+$('#dt-h-m').onclick=()=>stepDt('h',-1);$('#dt-h-p').onclick=()=>stepDt('h',1);
+$('#dt-m-m').onclick=()=>stepDt('m',-1);$('#dt-m-p').onclick=()=>stepDt('m',1);
+$('#dt-h').onchange=()=>{let h=parseInt($('#dt-h').value,10);if(isNaN(h))h=0;h=Math.min(23,Math.max(0,h));dtDate.setHours(h);$('#dt-h').value=pad(h)};
+$('#dt-m').onchange=()=>{let m=parseInt($('#dt-m').value,10);if(isNaN(m))m=0;m=Math.min(59,Math.max(0,m));dtDate.setMinutes(m);$('#dt-m').value=pad(m)};
+$('#dt-cancel').onclick=()=>$('#overlay-dt').classList.add('hidden');
+$('#overlay-dt').onclick=e=>{if(e.target.id==='overlay-dt')$('#overlay-dt').classList.add('hidden')};
+$('#dt-ok').onclick=()=>{
+  const v=dtTimeOnly
+    ?pad(dtDate.getHours())+':'+pad(dtDate.getMinutes())
+    :dtDate.getFullYear()+'-'+pad(dtDate.getMonth()+1)+'-'+pad(dtDate.getDate())+'T'+pad(dtDate.getHours())+':'+pad(dtDate.getMinutes());
+  $('#overlay-dt').classList.add('hidden');
+  if(dtCb)dtCb(v);
+};
+$('#dl-due-btn').onclick=()=>openDt('dl-due',false);
+$('#m-start-btn').onclick=()=>openDt('m-start',true,'Hora de inicio');
+$('#m-end-btn').onclick=()=>openDt('m-end',true,'Hora de fin');
 
 /* ---------- notificaciones ---------- */
 async function fire(title,body){
@@ -559,6 +672,7 @@ function openModal(c){
   $('#m-day').value=c?c.day:'0';
   $('#m-start').value=c?c.start:'09:00';
   $('#m-end').value=c?c.end:'10:00';
+  paintDt('m-start',true);paintDt('m-end',true);
   mColor=c?c.color:COLORS[0];
   $$('.sw').forEach(x=>x.classList.toggle('on',x.dataset.color===mColor));
   $('#m-del').classList.toggle('hidden',!c);
@@ -666,6 +780,7 @@ function renderDeadlines(){
 }
 $('#btn-add-dl').onclick=()=>{
   $('#dl-name').value='';$('#dl-due').value='';$('#dl-err').textContent='';
+  paintDt('dl-due',false);
   const def=data.settings.remindDef;
   if(def==null)$('#dl-rem').value='';
   else if([10,60,1440].includes(def))$('#dl-rem').value=String(def);
