@@ -283,11 +283,14 @@ function maybeStartTour(tries){
     steps:steps,
     onNextClick:(el,step,opts)=>{const nx=opts.config.steps[opts.state.activeIndex+1];if(nx&&nx.view)switchView(nx.view);drv.moveNext()},
     onPrevClick:(el,step,opts)=>{const pv=opts.config.steps[opts.state.activeIndex-1];if(pv&&pv.view)switchView(pv.view);drv.movePrevious()},
-    onDestroyed:()=>{if(data){data.tourDone=1;save();if(typeof sbSaveData==='function')sbSaveData(data).catch(()=>{})}switchView('horario')}
+    onDestroyed:()=>{switchView('horario')}
   });
+  data.tourDone=1;save();
+  if(typeof sbSaveData==='function')sbSaveData(data).catch(()=>{});
   drv.drive();
 }
 async function enterCloud(user,isNew){
+  cloudReady=false;
   me=user.id;
   data=store.data(me)||blankData();
   normalize();
@@ -296,6 +299,7 @@ async function enterCloud(user,isNew){
   if(!isNew){
     try{
       const r=await sbLoadData();
+      cloudReady=!!r.ok;
       if(r.ok&&r.payload){
         data=Object.assign(blankData(),r.payload);normalize();
         store.saveData(me,data);syncSettingsUI();renderAll();
@@ -305,7 +309,6 @@ async function enterCloud(user,isNew){
         else await offerMigration();
       }
     }catch(ex){/* seguimos con la copia local */}
-    cloudReady=true;
   }else{
     await offerMigration();
     cloudReady=true;
@@ -661,6 +664,7 @@ $('#overlay-acc').onclick=e=>{if(e.target.id==='overlay-acc')$('#overlay-acc').c
 function sanitizeImport(d){
   if(!d||typeof d!=='object'||!Array.isArray(d.classes)||!Array.isArray(d.notes))throw 0;
   const out=blankData();
+  out.tourDone=data&&data.tourDone?1:0;
   const isTime=s=>typeof s==='string'&&/^([01]\d|2[0-3]):[0-5]\d$/.test(s);
   const isHex=s=>typeof s==='string'&&/^#[0-9a-fA-F]{6}$/.test(s);
   const isDue=s=>typeof s==='string'&&/^\d{4}-\d{2}-\d{2}T([01]\d|2[0-3]):[0-5]\d/.test(s);
@@ -790,7 +794,7 @@ const sbS=typeof sbSession==='function'?sbSession():null;
 if(sbS&&sbS.user){
   me=sbS.user.id;data=store.data(me)||blankData();normalize();
   showApp(sbS.user.email||'');
-  sbLoadData().then(r=>{if(r.ok&&r.payload){data=Object.assign(blankData(),r.payload);normalize();store.saveData(me,data);syncSettingsUI();renderAll()}cloudReady=true}).catch(()=>{cloudReady=true});
+  sbLoadData().then(r=>{if(r.ok&&r.payload){data=Object.assign(blankData(),r.payload);normalize();store.saveData(me,data);syncSettingsUI();renderAll()}cloudReady=!!r.ok}).catch(()=>{});
   sbLoadProfile().then(p=>{if(p.ok)isPro=p.pro}).catch(()=>{});
 }
 if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(()=>{})}
