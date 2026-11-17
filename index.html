@@ -14,8 +14,14 @@
 :root{
   --bg:#070a09; --panel:#0d1310; --panel2:#111a15; --line:#1c2620;
   --acc:#34d399; --acc-dim:#1f6f54; --txt:#e7f0ea; --mut:#8aa395; --danger:#f87171;
+  --hdrbg:rgba(7,10,9,.85);
   --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
 }
+[data-theme=light]{
+  --bg:#eef3ee; --panel:#ffffff; --panel2:#e6ede6; --line:#cfdbcf;
+  --txt:#17251d; --mut:#5d7266; --hdrbg:rgba(255,255,255,.85);
+}
+[data-theme=light] .sw.on{border-color:#17251d}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{background:var(--bg);color:var(--txt);font-family:-apple-system,'Segoe UI',Roboto,Inter,sans-serif;font-size:15px}
@@ -30,7 +36,7 @@ h1,h2,h3{font-weight:650}
 
 /* ---------- auth ---------- */
 #auth{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:20px}
-.auth-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:34px 28px;width:100%;max-width:380px;box-shadow:0 0 60px rgba(52,211,153,.08)}
+.auth-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:34px 28px;width:100%;max-width:380px;box-shadow:0 10px 40px rgba(0,0,0,.25)}
 .brand{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:6px}
 .brand svg{width:34px;height:34px}
 .brand b{font-size:22px;letter-spacing:.5px}
@@ -48,7 +54,7 @@ h1,h2,h3{font-weight:650}
 
 /* ---------- shell ---------- */
 #app{min-height:100dvh;display:flex;flex-direction:column}
-header{display:flex;align-items:center;gap:14px;padding:12px 18px;border-bottom:1px solid var(--line);background:rgba(7,10,9,.85);backdrop-filter:blur(8px);position:sticky;top:0;z-index:20}
+header{display:flex;align-items:center;gap:14px;padding:12px 18px;border-bottom:1px solid var(--line);background:var(--hdrbg);backdrop-filter:blur(8px);position:sticky;top:0;z-index:20}
 header .brand{margin:0}
 header .brand b{font-size:17px}
 nav{margin-left:auto;display:flex;gap:4px}
@@ -164,15 +170,39 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .ia-box{max-width:520px;margin:40px auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:34px;text-align:center}
 .ia-box .lock{width:52px;height:52px;margin:0 auto 14px;border-radius:14px;background:var(--panel2);border:1px solid var(--acc-dim);display:flex;align-items:center;justify-content:center;color:var(--acc)}
 .ia-box p{color:var(--mut);font-size:14px;margin-top:10px;line-height:1.6}
-.term{font-family:var(--mono);font-size:12px;color:var(--acc);background:#050807;border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-top:18px;text-align:left}
+.term{font-family:var(--mono);font-size:12px;color:var(--acc);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-top:18px;text-align:left}
+
+/* ---------- tema ---------- */
+.brand svg{color:var(--acc)}
+.th-modes{display:flex;gap:8px}
+.th-modes button{flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);font-weight:600}
+.th-modes button.on{border-color:var(--acc);color:var(--acc)}
+.th-pro{border:1px dashed var(--acc-dim);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.th-pro .pro-t{display:flex;align-items:center;gap:8px;font-size:14px}
+.th-hex{display:flex;gap:8px}
+.th-hex input{flex:1;font-family:var(--mono)}
+
+/* ---------- horario móvil ---------- */
+.cal-m{display:none}
 
 @media(max-width:760px){
   header{backdrop-filter:none}
-  nav{position:fixed;bottom:0;left:0;right:0;background:rgba(7,10,9,.95);border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom));margin:0;justify-content:space-around;z-index:30;backdrop-filter:blur(10px)}
+  nav{position:fixed;bottom:0;left:0;right:0;background:var(--hdrbg);border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom));margin:0;justify-content:space-around;z-index:30;backdrop-filter:blur(10px)}
   nav button{flex-direction:column;font-size:11px;gap:2px;padding:6px 10px}
   nav button .chip{display:none}
   main{padding:14px 14px 90px}
   .notes{grid-template-columns:1fr}
+  .cal-wrap{display:none}
+  .cal-m{display:block}
+  .m-chips{display:flex;gap:6px;margin-bottom:12px}
+  .m-chip{flex:1;padding:8px 0;text-align:center;border-radius:9px;background:var(--panel2);border:1px solid var(--line);color:var(--mut);font-size:12px;font-weight:700}
+  .m-chip.on{background:var(--acc);color:#052e1f;border-color:var(--acc)}
+  .m-chip.today:not(.on){border-color:var(--acc-dim);color:var(--acc)}
+  .m-cls{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-left:4px solid;border-radius:10px;padding:12px;margin-bottom:8px}
+  .m-cls b{flex:1;font-size:14px}
+  .m-cls span{font-family:var(--mono);font-size:12px;color:var(--mut)}
+  .m-empty{color:var(--mut);font-size:13px;text-align:center;padding:26px 0}
+  .stats{flex-wrap:wrap;justify-content:center;gap:14px}
   .notes.m-show-list .notes-edit{display:none}
   .notes:not(.m-show-list) .notes-list{display:none}
   .backbtn{display:inline-block}
@@ -180,6 +210,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
   .userbox .uname{display:none}
 }
 </style>
+<script>try{const t=JSON.parse(localStorage.getItem('sf_theme')||'{}');if(t.mode)document.documentElement.dataset.theme=t.mode;if(t.accent)document.documentElement.style.setProperty('--acc',t.accent)}catch(e){}</script>
 </head>
 <body>
 
@@ -187,7 +218,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 <div id="auth">
   <div class="auth-card">
     <div class="brand">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 20 6v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 20 6v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
       <b>Study<span>Flow</span></b>
     </div>
     <p class="tag">Tu horario, tus apuntes y tu enfoque. En un solo sitio.</p>
@@ -201,7 +232,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
       <div class="err" id="a-err"></div>
       <button class="btn" id="a-go" type="submit">Entrar</button>
     </form>
-    <button class="btn ghost" id="btn-demo" style="width:100%;margin-top:10px">Entrar con la cuenta demo</button>
+    <button class="btn ghost" id="btn-theme" style="width:100%;margin-top:10px">🎨 Personalizar colores</button>
     <p class="foot">fase 1 · tus datos se guardan solo en este navegador</p>
   </div>
 </div>
@@ -210,7 +241,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 <div id="app" class="hidden">
   <header>
     <div class="brand">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 20 6v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 20 6v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
       <b>Study<span>Flow</span></b>
     </div>
     <nav>
@@ -221,6 +252,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
       <button data-view="ia">IA <span class="chip">fase 2</span></button>
     </nav>
     <div class="userbox">
+      <button class="out" id="btn-theme2" title="Personalizar colores" style="font-size:14px">🎨</button>
       <div class="avatar" id="u-av" title="Mi cuenta">?</div>
       <span class="uname" id="u-name"></span>
       <button class="out" id="btn-out" title="Cerrar sesión">salir</button>
@@ -238,6 +270,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
       </div>
       <div id="cal-empty" class="empty hidden">Todavía no tienes clases. Añade la primera o carga los datos de ejemplo para ver cómo queda.</div>
       <div class="cal-wrap"><div class="cal" id="cal"></div></div>
+      <div class="cal-m" id="cal-m"></div>
     </section>
 
     <!-- ENTREGAS -->
@@ -402,6 +435,33 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
   </div>
 </div>
 
+<!-- modal personalizar -->
+<div class="overlay hidden" id="overlay-th">
+  <div class="modal">
+    <h3>Personalizar</h3>
+    <label class="mut" style="font-size:12px">Modo</label>
+    <div class="th-modes">
+      <button type="button" id="th-dark">Oscuro</button>
+      <button type="button" id="th-light">Claro</button>
+    </div>
+    <label class="mut" style="font-size:12px">Color de acento</label>
+    <div class="swatches" id="th-basic"></div>
+    <div class="th-pro">
+      <span class="pro-t"><b>Pro</b><span class="chip">beta gratis</span></span>
+      <label class="mut" style="font-size:12px">Más acentos</label>
+      <div class="swatches" id="th-pro-sw"></div>
+      <label class="mut" style="font-size:12px">Acento personalizado (hex)</label>
+      <div class="th-hex">
+        <input id="th-hex" placeholder="#34d399" maxlength="7">
+        <button class="btn" id="th-hex-go" type="button">Aplicar</button>
+      </div>
+    </div>
+    <div class="acts">
+      <button class="btn" id="th-close">Listo</button>
+    </div>
+  </div>
+</div>
+
 <!-- selector fecha/hora -->
 <div class="overlay hidden" id="overlay-dt">
   <div class="modal">
@@ -432,6 +492,31 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const H0=8, H1=22, HOUR=60; // calendario 8:00-22:00, 60px/hora
 const DAYS=['LUN','MAR','MIE','JUE','VIE'];
 const COLORS=['#34d399','#60a5fa','#f472b6','#fbbf24','#a78bfa'];
+
+/* ---------- tema ---------- */
+const ACCENTS=['#34d399','#60a5fa','#f472b6','#fbbf24','#a78bfa','#f87171','#2dd4bf','#84cc16','#fb923c','#e879f9'];
+const ACC_BASIC=4;
+function dimHex(hex,f){const n=parseInt(hex.slice(1),16);const m=v=>Math.max(0,Math.min(255,Math.round(v*f)));return '#'+((1<<24)+(m(n>>16&255)<<16)+(m(n>>8&255)<<8)+m(n&255)).toString(16).slice(1)}
+function getTheme(){try{return Object.assign({mode:'dark',accent:'#34d399'},JSON.parse(localStorage.getItem('sf_theme')||'{}'))}catch(e){return{mode:'dark',accent:'#34d399'}}}
+function applyTheme(){const t=getTheme();document.documentElement.dataset.theme=t.mode;document.documentElement.style.setProperty('--acc',t.accent);document.documentElement.style.setProperty('--acc-dim',dimHex(t.accent,t.mode==='light'?0.78:0.55))}
+function saveTheme(t){localStorage.setItem('sf_theme',JSON.stringify(t))}
+function renderThemePanel(){
+  const t=getTheme();
+  $('#th-dark').classList.toggle('on',t.mode==='dark');
+  $('#th-light').classList.toggle('on',t.mode==='light');
+  const paint=(el,list)=>{el.innerHTML='';list.forEach(hex=>{const s=document.createElement('button');s.type='button';s.className='sw'+(t.accent.toLowerCase()===hex?' on':'');s.style.background=hex;s.onclick=()=>{const th=getTheme();th.accent=hex;saveTheme(th);applyTheme();renderThemePanel()};el.appendChild(s)})};
+  paint($('#th-basic'),ACCENTS.slice(0,ACC_BASIC));
+  paint($('#th-pro-sw'),ACCENTS.slice(ACC_BASIC));
+}
+$('#th-dark').onclick=()=>{const t=getTheme();t.mode='dark';saveTheme(t);applyTheme();renderThemePanel()};
+$('#th-light').onclick=()=>{const t=getTheme();t.mode='light';saveTheme(t);applyTheme();renderThemePanel()};
+$('#th-hex-go').onclick=()=>{const v=$('#th-hex').value.trim();if(!/^#[0-9a-fA-F]{6}$/.test(v)){$('#th-hex').value='';return}const t=getTheme();t.accent=v.toLowerCase();saveTheme(t);applyTheme();renderThemePanel()};
+function openTheme(){renderThemePanel();$('#overlay-th').classList.remove('hidden')}
+$('#btn-theme').onclick=openTheme;
+$('#btn-theme2').onclick=openTheme;
+$('#th-close').onclick=()=>$('#overlay-th').classList.add('hidden');
+$('#overlay-th').onclick=e=>{if(e.target.id==='overlay-th')$('#overlay-th').classList.add('hidden')};
+applyTheme();
 
 /* ---------- selector fecha/hora ---------- */
 const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -601,19 +686,10 @@ $('#form-auth').onsubmit=async e=>{
     store.saveData(name,blankData());
     enter(name);
   }else{
-    if(!key){$('#a-err').textContent='Ese usuario no existe en este navegador. Crea la cuenta o entra con la demo.';return}
+    if(!key){$('#a-err').textContent='Ese usuario no existe en este navegador. Crea la cuenta primero.';return}
     if(users[key].h!==h){$('#a-err').textContent='Contraseña incorrecta';return}
     enter(key);
   }
-};
-$('#btn-demo').onclick=async ()=>{
-  const users=store.users();
-  if(!users.demo){
-    users.demo={h:await hash('demo1234'),created:Date.now()};store.saveUsers(users);
-    store.saveData('demo',blankData());
-  }
-  enter('demo');
-  if(!data.classes.length&&!data.notes.length&&!data.deadlines.length){seedCal();seedNotes();seedDl()}
 };
 function enter(name){
   me=name;data=store.data(name)||blankData();store.setSession(name);
@@ -664,6 +740,24 @@ function renderCal(){
   }
   $('#cal-empty').classList.toggle('hidden',data.classes.length>0);
   $('.cal-wrap').classList.toggle('hidden',data.classes.length===0);
+  $('#cal-m').classList.toggle('hidden',data.classes.length===0);
+  renderCalM();
+}
+let mDay=Math.min(4,Math.max(0,(new Date().getDay()+6)%7));
+function renderCalM(){
+  const w=$('#cal-m');w.innerHTML='';
+  const chips=document.createElement('div');chips.className='m-chips';
+  const today=(new Date().getDay()+6)%7;
+  DAYS.forEach((d,i)=>{const c=document.createElement('button');c.type='button';c.className='m-chip'+(i===mDay?' on':'')+(i===today?' today':'');c.textContent=d;c.onclick=()=>{mDay=i;renderCalM()};chips.appendChild(c)});
+  w.appendChild(chips);
+  const list=data.classes.filter(c=>c.day===mDay).sort((a,b)=>toMin(a.start)-toMin(b.start));
+  if(!list.length){const e=document.createElement('div');e.className='m-empty';e.textContent='Sin clases este día';w.appendChild(e);return}
+  list.forEach(c=>{
+    const b=document.createElement('div');b.className='m-cls';b.style.borderLeftColor=c.color;
+    const t=document.createElement('b');t.textContent=c.name;t.style.color=c.color;
+    const s=document.createElement('span');s.textContent=c.start+' - '+c.end;
+    b.appendChild(t);b.appendChild(s);b.onclick=()=>openModal(c);w.appendChild(b);
+  });
 }
 function openModal(c){
   editId=c?c.id:null;
