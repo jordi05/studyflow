@@ -92,6 +92,8 @@ main{flex:1;padding:20px;max-width:1100px;width:100%;margin:0 auto}
 .dl-x{color:var(--mut);padding:6px}
 .dl-ok{border:1px solid var(--line);border-radius:8px;width:26px;height:26px;color:var(--acc)}
 
+.ntf-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+
 /* ---------- modal ---------- */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:18px;z-index:50}
 .modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:10px}
@@ -305,6 +307,15 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
     <input id="dl-name" placeholder="¿Qué tienes que entregar?" maxlength="60">
     <label class="mut" style="font-size:12px">Fecha y hora límite</label>
     <input id="dl-due" type="datetime-local">
+    <label class="mut" style="font-size:12px">Aviso</label>
+    <select id="dl-rem">
+      <option value="">Sin aviso</option>
+      <option value="10">10 min antes</option>
+      <option value="60">1 h antes</option>
+      <option value="1440">1 día antes</option>
+      <option value="custom">Personalizado...</option>
+    </select>
+    <input id="dl-rem-custom" inputmode="numeric" placeholder="minutos antes" class="hidden">
     <div class="err" id="dl-err"></div>
     <div class="acts">
       <button class="btn ghost" id="dl-cancel">Cancelar</button>
@@ -318,6 +329,11 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
   <div class="modal">
     <h3>Mi cuenta</h3>
     <p class="mut" style="font-size:13px">Tus datos se guardan solo en este navegador. Exporta una copia si cambias de dispositivo.</p>
+    <div class="ntf-row">
+      <span style="font-size:14px">Avisos (notificaciones)</span>
+      <button class="btn ghost" id="acc-ntf">Activar</button>
+    </div>
+    <p class="mut" style="font-size:12px;line-height:1.5">Los avisos llegan con la app abierta. Con la app cerrada solo pueden llegar si la tienes instalada desde "Añadir a pantalla de inicio" (en iPhone hace falta iOS 16.4+), y sin servidor no están garantizados.</p>
     <button class="btn" id="acc-export">Exportar mis datos (JSON)</button>
     <button class="btn ghost" id="acc-import">Importar datos</button>
     <input type="file" id="acc-file" accept="application/json" class="hidden">
@@ -371,6 +387,44 @@ const H0=8, H1=22, HOUR=60; // calendario 8:00-22:00, 60px/hora
 const DAYS=['LUN','MAR','MIE','JUE','VIE'];
 const COLORS=['#34d399','#60a5fa','#f472b6','#fbbf24','#a78bfa'];
 
+/* ---------- notificaciones ---------- */
+async function fire(title,body){
+  if(!('Notification' in window)||Notification.permission!=='granted')return false;
+  try{
+    if('serviceWorker' in navigator){
+      const r=await navigator.serviceWorker.getRegistration();
+      if(r){await r.showNotification(title,{body,icon:'icon.svg'});return true}
+    }
+    new Notification(title,{body,icon:'icon.svg'});return true;
+  }catch(e){
+    try{new Notification(title,{body});return true}catch(e2){return false}
+  }
+}
+function updateNtfBtn(){
+  const b=$('#acc-ntf');
+  if(!('Notification' in window)){b.textContent='No soportadas aquí';b.disabled=true;return}
+  const p=Notification.permission;
+  if(p==='granted'){b.textContent='Activadas ✓';b.disabled=true}
+  else if(p==='denied'){b.textContent='Bloqueadas';b.disabled=true}
+  else{b.textContent='Activar';b.disabled=false}
+}
+$('#acc-ntf').onclick=()=>{if('Notification' in window)Notification.requestPermission().then(updateNtfBtn)};
+function fmtRem(m){if(m>=1440&&m%1440===0)return (m/1440)+' día'+(m>1440?'s':'');if(m>=60&&m%60===0)return (m/60)+' h';return m+' min'}
+function checkReminders(){
+  if(!me)return;
+  const now=Date.now();let ch=false;
+  data.deadlines.forEach(d=>{
+    if(d.remind==null||d.done||d.notified)return;
+    const due=new Date(d.due).getTime();
+    if(now>=due-d.remind*60000){
+      d.notified=true;ch=true;
+      const left=due-now;
+      fire('Entrega: '+d.name,left>0?fmtLeft(left)+' · límite '+new Date(d.due).toLocaleString('es-ES',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'La entrega ya venció');
+    }
+  });
+  if(ch){save();if(!$('#view-entregas').classList.contains('hidden'))renderDeadlines()}
+}
+
 /* ---------- diálogos propios ---------- */
 function ask(o){
   return new Promise(res=>{
@@ -398,7 +452,7 @@ const store={
   session(){return localStorage.getItem('sf_session')},
   setSession(n){n?localStorage.setItem('sf_session',n):localStorage.removeItem('sf_session')}
 };
-function blankData(){return {classes:[],deadlines:[],notes:[],pomos:{total:0,days:{},mins:{},totalMin:0},settings:{focus:25,short:5,long:15}}}
+function blankData(){return {classes:[],deadlines:[],notes:[],pomos:{total:0,days:{},mins:{},totalMin:0},settings:{focus:25,short:5,long:15,remindDef:null}}}
 async function hash(s){
   if(window.crypto&&crypto.subtle){try{
     const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
@@ -602,7 +656,7 @@ function renderDeadlines(){
     const due=new Date(d.due).getTime(),left=due-now;
     const row=document.createElement('div');row.className='dl-item'+(d.done?' done':'');
     const soon=!d.done&&left>0&&left<86400000, late=!d.done&&left<0;
-    row.innerHTML='<button class="dl-ok">'+(d.done?'✓':'')+'</button><div class="grow"><b></b><span class="dl-when">'+new Date(d.due).toLocaleString('es-ES',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+'</span></div><span class="dl-left'+(soon?' soon':'')+(late?' late':'')+'">'+(d.done?'hecha':fmtLeft(left))+'</span><button class="dl-x">✕</button>';
+    row.innerHTML='<button class="dl-ok">'+(d.done?'✓':'')+'</button><div class="grow"><b></b><span class="dl-when">'+new Date(d.due).toLocaleString('es-ES',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+(d.remind!=null?' · aviso '+fmtRem(d.remind)+' antes':'')+'</span></div><span class="dl-left'+(soon?' soon':'')+(late?' late':'')+'">'+(d.done?'hecha':fmtLeft(left))+'</span><button class="dl-x">✕</button>';
     row.querySelector('b').textContent=d.name;
     row.querySelector('.dl-ok').onclick=()=>{d.done=!d.done;save();renderDeadlines()};
     row.querySelector('.dl-x').onclick=async()=>{if(await ask({title:'¿Borrar esta entrega?',msg:d.name})){data.deadlines=data.deadlines.filter(x=>x.id!==d.id);save();renderDeadlines()}};
@@ -612,29 +666,41 @@ function renderDeadlines(){
 }
 $('#btn-add-dl').onclick=()=>{
   $('#dl-name').value='';$('#dl-due').value='';$('#dl-err').textContent='';
+  const def=data.settings.remindDef;
+  if(def==null)$('#dl-rem').value='';
+  else if([10,60,1440].includes(def))$('#dl-rem').value=String(def);
+  else{$('#dl-rem').value='custom';$('#dl-rem-custom').value=def}
+  $('#dl-rem-custom').classList.toggle('hidden',$('#dl-rem').value!=='custom');
   $('#overlay-dl').classList.remove('hidden');
 };
+$('#dl-rem').onchange=()=>$('#dl-rem-custom').classList.toggle('hidden',$('#dl-rem').value!=='custom');
 $('#dl-cancel').onclick=()=>$('#overlay-dl').classList.add('hidden');
 $('#overlay-dl').onclick=e=>{if(e.target.id==='overlay-dl')$('#overlay-dl').classList.add('hidden')};
 $('#dl-save').onclick=()=>{
   const name=$('#dl-name').value.trim(),due=$('#dl-due').value;
   if(!name){$('#dl-err').textContent='Ponle un nombre';return}
   if(!due){$('#dl-err').textContent='Ponle fecha y hora';return}
-  data.deadlines.push({id:Date.now(),name,due,done:false});
-  save();$('#overlay-dl').classList.add('hidden');renderDeadlines();
+  let rem=$('#dl-rem').value;
+  if(rem==='custom'){
+    rem=parseInt($('#dl-rem-custom').value,10);
+    if(!rem||rem<1){$('#dl-err').textContent='Pon los minutos del aviso personalizado';return}
+  }else rem=rem===''?null:parseInt(rem,10);
+  data.deadlines.push({id:Date.now(),name,due,done:false,remind:rem});
+  data.settings.remindDef=rem;
+  save();$('#overlay-dl').classList.add('hidden');renderDeadlines();checkReminders();
 };
 $('#btn-sample-dl').onclick=()=>{seedDl()};
 function seedDl(){
   const day=86400000,now=Date.now();
   data.deadlines.push(
-    {id:now+1,name:'Práctica 2 de redes',due:new Date(now+2*day).toISOString().slice(0,16),done:false},
-    {id:now+2,name:'Examen de mates',due:new Date(now+5*day).toISOString().slice(0,16),done:false}
+    {id:now+1,name:'Práctica 2 de redes',due:new Date(now+2*day).toISOString().slice(0,16),done:false,remind:1440},
+    {id:now+2,name:'Examen de mates',due:new Date(now+5*day).toISOString().slice(0,16),done:false,remind:60}
   );save();renderDeadlines();
 }
-setInterval(()=>{if(me&&!$('#view-entregas').classList.contains('hidden'))renderDeadlines()},60000);
+setInterval(()=>{if(!me)return;if(!$('#view-entregas').classList.contains('hidden'))renderDeadlines();checkReminders()},60000);
 
 /* ---------- cuenta ---------- */
-$('#u-av').onclick=()=>{$('#acc-err').textContent='';$('#overlay-acc').classList.remove('hidden')};
+$('#u-av').onclick=()=>{$('#acc-err').textContent='';updateNtfBtn();$('#overlay-acc').classList.remove('hidden')};
 $('#acc-close').onclick=()=>$('#overlay-acc').classList.add('hidden');
 $('#overlay-acc').onclick=e=>{if(e.target.id==='overlay-acc')$('#overlay-acc').classList.add('hidden')};
 $('#acc-export').onclick=()=>{
@@ -707,7 +773,9 @@ $('#btn-start').onclick=()=>{
         save();
       }
       beep();renderPomo();
-      notice(P.mode==='focus'?'¡Enfoque terminado!':'Descanso terminado',P.mode==='focus'?'Toca un descanso.':'¡A por otro!');
+      const t=P.mode==='focus'?'¡Enfoque terminado!':'Descanso terminado',m=P.mode==='focus'?'Toca un descanso.':'¡A por otro!';
+      fire(t,m);
+      if(!document.hidden)notice(t,m);
       setMode(P.mode==='focus'?'short':'focus');
     }
   },1000);
@@ -724,7 +792,7 @@ function beep(){try{
 }catch(e){}}
 
 /* ---------- init ---------- */
-function renderAll(){renderCal();renderDeadlines();renderNotes();setMode(P.mode)}
+function renderAll(){renderCal();renderDeadlines();renderNotes();setMode(P.mode);checkReminders()}
 const sess=store.session();
 if(sess&&store.users()[sess])enter(sess);
 if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(()=>{})}
