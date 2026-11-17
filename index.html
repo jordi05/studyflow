@@ -349,6 +349,13 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc);box
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
 }
+
+/* ---------- selects ---------- */
+select{-webkit-appearance:none;appearance:none;padding-right:34px;background-color:var(--panel2);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238aa395' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:12px}
+select option{background:var(--panel);color:var(--txt)}
+select option:checked{background:var(--acc-dim)}
+.subj-edit{padding-right:30px}
+:root{accent-color:var(--acc)}
 </style>
 <script src="theme.js?v=6"></script>
 </head>
@@ -680,6 +687,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc);box
 <script data-goatcounter="https://studyflow.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <script src="driver.js?v=1"></script>
 <script src="sb.js?v=1"></script>
-<script src="app.js?v=21"></script>
+<script src="app.js?v=22"></script>
 </body>
   </html>
