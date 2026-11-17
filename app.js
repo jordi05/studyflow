@@ -21,7 +21,7 @@ function renderThemePanel(){
 }
 $('#th-dark').onclick=()=>{const t=getTheme();t.mode='dark';saveTheme(t);applyTheme();renderThemePanel()};
 $('#th-light').onclick=()=>{const t=getTheme();t.mode='light';saveTheme(t);applyTheme();renderThemePanel()};
-$('#th-hex-go').onclick=()=>{const v=$('#th-hex').value.trim();if(!/^#[0-9a-fA-F]{6}$/.test(v)){$('#th-hex').value='';return}const t=getTheme();t.accent=v.toLowerCase();saveTheme(t);applyTheme();renderThemePanel()};
+$('#th-hex-go').onclick=()=>{let v=$('#th-hex').value.trim();if(/^[0-9a-fA-F]{6}$/.test(v))v='#'+v;if(!/^#[0-9a-fA-F]{6}$/.test(v)){$('#th-hex').value='';return}const t=getTheme();t.accent=v.toLowerCase();saveTheme(t);applyTheme();renderThemePanel()};
 function openTheme(){renderThemePanel();$('#overlay-th').classList.remove('hidden')}
 $('#btn-theme').onclick=openTheme;
 $('#btn-theme2').onclick=openTheme;
