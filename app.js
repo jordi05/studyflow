@@ -273,14 +273,16 @@ function maybeStartTour(tries){
     {element:'#btn-theme2',view:'horario',popover:{title:'A tu gusto',description:'Con el icono de la paleta cambias los colores de toda la interfaz.'}}
   ];
   switchView('horario');
-  const drv=window.driver.js.driver({
+  let drv=null;
+  drv=window.driver.js.driver({
     showProgress:true,
     progressText:'{{current}} de {{total}}',
     nextBtnText:'Siguiente',
     prevBtnText:'Atrás',
     doneBtnText:'Empezar',
     steps:steps,
-    onDeselected:(el,step,opts)=>{const nx=opts.config.steps[opts.state.activeIndex+1];if(nx&&nx.view)switchView(nx.view)},
+    onNextClick:(el,step,opts)=>{const nx=opts.config.steps[opts.state.activeIndex+1];if(nx&&nx.view)switchView(nx.view);drv.moveNext()},
+    onPrevClick:(el,step,opts)=>{const pv=opts.config.steps[opts.state.activeIndex-1];if(pv&&pv.view)switchView(pv.view);drv.movePrevious()},
     onDestroyed:()=>{localStorage.setItem('sf_tour_v1','1');if(data){data.tourDone=1;save();if(typeof sbSaveData==='function')sbSaveData(data).catch(()=>{})}switchView('horario')}
   });
   drv.drive();
