@@ -850,7 +850,7 @@ function setDur(m,v){
   data.settings[m]=v;$('#d-'+m).value=v;save();
   if(P.mode===m&&!P.running)setMode(m);
 }
-$$('.step button').forEach(b=>b.onclick=()=>setDur(b.dataset.m,(parseInt($('#d-'+b.dataset.m).value,10)||0)+(+b.dataset.d)));
+$$('.dur .step button').forEach(b=>b.onclick=()=>setDur(b.dataset.m,(parseInt($('#d-'+b.dataset.m).value,10)||0)+(+b.dataset.d)));
 ['focus','short','long'].forEach(m=>{
   $('#d-'+m).onchange=e=>setDur(m,e.target.value);
 });
