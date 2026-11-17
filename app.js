@@ -258,8 +258,8 @@ function showApp(email){
 
 /* ---------- tour primera vez (driver.js) ---------- */
 function maybeStartTour(tries){
-  if(!me)return;
-  if(localStorage.getItem('sf_tour_v1')==='1'||(data&&data.tourDone))return;
+  if(!me||!data)return;
+  if(data.tourDone)return;
   if(!window.driver||!window.driver.js)return;
   if(!cloudReady){setTimeout(()=>maybeStartTour(0),2500);return}
   if(!$('#overlay-ask').classList.contains('hidden')){setTimeout(()=>maybeStartTour(0),3000);return}
@@ -283,7 +283,7 @@ function maybeStartTour(tries){
     steps:steps,
     onNextClick:(el,step,opts)=>{const nx=opts.config.steps[opts.state.activeIndex+1];if(nx&&nx.view)switchView(nx.view);drv.moveNext()},
     onPrevClick:(el,step,opts)=>{const pv=opts.config.steps[opts.state.activeIndex-1];if(pv&&pv.view)switchView(pv.view);drv.movePrevious()},
-    onDestroyed:()=>{localStorage.setItem('sf_tour_v1','1');if(data){data.tourDone=1;save();if(typeof sbSaveData==='function')sbSaveData(data).catch(()=>{})}switchView('horario')}
+    onDestroyed:()=>{if(data){data.tourDone=1;save();if(typeof sbSaveData==='function')sbSaveData(data).catch(()=>{})}switchView('horario')}
   });
   drv.drive();
 }
