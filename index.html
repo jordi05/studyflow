@@ -56,7 +56,9 @@ h1,h2,h3{font-weight:650}
 
 /* ---------- shell ---------- */
 #app{min-height:100dvh;display:flex;flex-direction:column}
-header{display:flex;align-items:center;gap:14px;padding:calc(12px + env(safe-area-inset-top)) calc(18px + env(safe-area-inset-right)) 12px calc(18px + env(safe-area-inset-left));border-bottom:1px solid var(--line);background:var(--hdrbg);backdrop-filter:blur(8px);position:sticky;top:0;z-index:20}
+header{display:flex;align-items:center;gap:14px;padding:12px 18px;padding-top:calc(12px + constant(safe-area-inset-top));padding-top:calc(12px + env(safe-area-inset-top));padding-left:calc(18px + constant(safe-area-inset-left));padding-left:calc(18px + env(safe-area-inset-left));padding-right:calc(18px + constant(safe-area-inset-right));padding-right:calc(18px + env(safe-area-inset-right));min-height:56px;border-bottom:1px solid var(--line);background:var(--hdrbg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);position:sticky;top:0;z-index:20}
+.sa-top header{padding-top:71px}
+.sa-top #auth{padding-top:79px}
 header .brand{margin:0}
 header .brand b{font-size:17px}
 nav{margin-left:auto;display:flex;gap:4px}
@@ -384,6 +386,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
   <div class="modal">
     <h3>Mi cuenta</h3>
     <p class="mut" style="font-size:13px">Tus datos se guardan solo en este navegador. Exporta una copia si cambias de dispositivo.</p>
+    <p class="mut" style="font-size:11px;margin-top:4px">StudyFlow v2.1.0</p>
     <div class="ntf-row">
       <span style="font-size:14px">Avisos (notificaciones)</span>
       <button class="btn ghost" id="acc-ntf">Activar</button>
