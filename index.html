@@ -131,7 +131,7 @@ main{flex:1;padding:20px;max-width:1100px;width:100%;margin:0 auto}
 .m-cls .blk-edit{position:static;opacity:1}
 .notes-edit{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
 .notes-edit textarea{flex:1;min-height:280px;resize:vertical;font-family:var(--mono);font-size:13px;line-height:1.6}
-.edit-bar{display:flex;gap:8px;align-items:center}
+.edit-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .saved{font-size:11px;color:var(--acc);font-family:var(--mono)}
 .backbtn{display:none}
 
@@ -314,7 +314,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
         <div class="notes-edit">
           <div class="edit-bar">
             <button class="btn ghost backbtn" id="btn-back-notes">← Apuntes</button>
-            <input id="note-title" placeholder="Título del apunte" style="flex:1;min-width:0">
+            <input id="note-title" placeholder="Título del apunte">
             <select id="note-subj" class="subj-edit" title="Asignatura del apunte"></select>
             <span class="saved hidden" id="note-saved">guardado</span>
             <button class="btn warn" id="btn-del-note">Borrar</button>
