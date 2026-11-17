@@ -247,7 +247,7 @@ function findLegacyData(){
 async function offerMigration(){
   const lg=findLegacyData();
   if(!lg)return;
-  const yes=await ask({title:'¿Subir tus datos locales?',msg:'En este navegador había datos de "'+lg.name+'". ¿Los subimos a tu cuenta para tenerlos en todos tus dispositivos?'});
+  const yes=await ask({title:'¿Subir tus datos locales?',msg:'En este navegador había datos de "'+lg.name+'". ¿Los subimos a tu cuenta para tenerlos en todos tus dispositivos?',yes:'Subir',no:'Ahora no',danger:false});
   if(!yes)return;
   data=Object.assign(blankData(),lg.d);normalize();
   store.saveData(me,data);syncSettingsUI();renderAll();
