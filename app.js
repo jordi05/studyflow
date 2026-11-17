@@ -305,7 +305,28 @@ function switchView(v){
   if(v==='entregas')renderDeadlines();
   if(v==='apuntes')renderNotes();
 }
-$$('nav button').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
+$$('nav button').forEach(b=>b.onclick=()=>{switchView(b.dataset.view);closeDrawer()});
+function closeDrawer(){document.body.classList.remove('drawer-open');$('#drawer-bg').classList.add('hidden')}
+$('#btn-menu').onclick=()=>{const open=document.body.classList.toggle('drawer-open');$('#drawer-bg').classList.toggle('hidden',!open)};
+$('#drawer-bg').onclick=closeDrawer;
+
+/* ---------- instalar app ---------- */
+let deferredInstall=null;
+const ib=$('#install-banner');
+const ibHide=()=>ib.classList.add('hidden');
+const ibDismiss=()=>{localStorage.setItem('sf_install_off','1');ibHide()};
+const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+const isIOS=()=>/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+function maybeShowInstall(){
+  if(localStorage.getItem('sf_install_off')==='1'||isStandalone())return;
+  if(deferredInstall){$('#ib-msg').textContent='Ábrela como app, sin barra del navegador.';$('#ib-go').classList.remove('hidden');ib.classList.remove('hidden')}
+  else if(isIOS()){$('#ib-msg').textContent='Pulsa Compartir y luego «Añadir a pantalla de inicio».';$('#ib-go').classList.add('hidden');ib.classList.remove('hidden')}
+}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;maybeShowInstall()});
+window.addEventListener('appinstalled',()=>{ibDismiss()});
+$('#ib-x').onclick=ibDismiss;
+$('#ib-go').onclick=async()=>{if(!deferredInstall)return;deferredInstall.prompt();try{await deferredInstall.userChoice}catch(e){}deferredInstall=null;ibHide()};
+setTimeout(maybeShowInstall,2500);
 
 /* ---------- horario ---------- */
 let editId=null, mColor=COLORS[0];
