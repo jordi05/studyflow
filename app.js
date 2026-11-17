@@ -253,6 +253,36 @@ function showApp(email){
   $('#auth').classList.add('hidden');$('#app').classList.remove('hidden');
   $('#u-name').textContent=email;$('#u-av').textContent=(email[0]||'?').toUpperCase();
   syncSettingsUI();renderAll();
+  setTimeout(()=>maybeStartTour(0),900);
+}
+
+/* ---------- tour primera vez (driver.js) ---------- */
+function maybeStartTour(tries){
+  if(!me)return;
+  if(localStorage.getItem('sf_tour_v1')==='1')return;
+  if(!window.driver||!window.driver.js)return;
+  if(!$('#overlay-ask').classList.contains('hidden')){if((tries||0)<4)setTimeout(()=>maybeStartTour((tries||0)+1),3000);return}
+  const mob=window.matchMedia('(max-width:760px)').matches;
+  const steps=[
+    {element:mob?'#btn-menu':'#sidenav',view:'horario',popover:{title:'Menú principal',description:mob?'Toca ese botón para abrir el menú y cambiar de sección.':'Desde aquí cambias entre las secciones de la app.'}},
+    {element:'#view-horario .view-head',view:'horario',popover:{title:'Tu horario',description:'Aquí ves tu semana. Añade clases con el botón de arriba a la derecha, o carga los datos de ejemplo para probar.'}},
+    {element:'#view-entregas .view-head',view:'entregas',popover:{title:'Entregas',description:'Apunta trabajos y exámenes con su fecha límite. Te avisa antes de que venzan.'}},
+    {element:'#view-apuntes .view-head',view:'apuntes',popover:{title:'Apuntes',description:'Notas por asignatura que se guardan solas mientras escribes.'}},
+    {element:'#view-pomodoro .view-head',view:'pomodoro',popover:{title:'Pomodoro',description:'Temporizador de enfoque y descansos. Lleva la cuenta de tus minutos de estudio.'}},
+    {element:'#btn-theme2',view:'horario',popover:{title:'A tu gusto',description:'Con el icono de la paleta cambias los colores de toda la interfaz.'}}
+  ];
+  switchView('horario');
+  const drv=window.driver.js.driver({
+    showProgress:true,
+    progressText:'{{current}} de {{total}}',
+    nextBtnText:'Siguiente',
+    prevBtnText:'Atrás',
+    doneBtnText:'Empezar',
+    steps:steps,
+    onDeselected:(el,step,opts)=>{const nx=opts.config.steps[opts.state.activeIndex+1];if(nx&&nx.view)switchView(nx.view)},
+    onDestroyed:()=>{localStorage.setItem('sf_tour_v1','1');switchView('horario')}
+  });
+  drv.drive();
 }
 async function enterCloud(user,isNew){
   me=user.id;
