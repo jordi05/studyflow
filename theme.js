@@ -1,0 +1,1 @@
+try{const t=JSON.parse(localStorage.getItem('sf_theme')||'{}');if(t.mode)document.documentElement.dataset.theme=t.mode;if(t.accent)document.documentElement.style.setProperty('--acc',t.accent)}catch(e){}
