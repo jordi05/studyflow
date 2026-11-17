@@ -196,6 +196,8 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .cal-m{display:none}
 
 @media(max-width:760px){
+  .edit-bar #note-title{flex:1 1 100%;order:-1}
+  .subj-edit{flex:1 1 auto;max-width:none}
   header{backdrop-filter:none}
   nav{position:fixed;bottom:0;left:0;right:0;background:var(--hdrbg);border-top:1px solid var(--line);padding:8px 10px calc(8px + env(safe-area-inset-bottom));margin:0;justify-content:space-around;z-index:30;backdrop-filter:blur(10px)}
   nav button{flex-direction:column;font-size:11px;gap:2px;padding:6px 10px}
