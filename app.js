@@ -9,8 +9,35 @@ const ACCENTS=['#34d399','#60a5fa','#f472b6','#fbbf24','#a78bfa','#f87171','#2dd
 const ACC_BASIC=4;
 function dimHex(hex,f){const n=parseInt(hex.slice(1),16);const m=v=>Math.max(0,Math.min(255,Math.round(v*f)));return '#'+((1<<24)+(m(n>>16&255)<<16)+(m(n>>8&255)<<8)+m(n&255)).toString(16).slice(1)}
 function getTheme(){try{return Object.assign({mode:'dark',accent:'#34d399'},JSON.parse(localStorage.getItem('sf_theme')||'{}'))}catch(e){return{mode:'dark',accent:'#34d399'}}}
-function applyTheme(){const t=getTheme();document.documentElement.dataset.theme=t.mode;document.documentElement.style.setProperty('--acc',t.accent);document.documentElement.style.setProperty('--acc-dim',dimHex(t.accent,t.mode==='light'?0.78:0.55))}
+const isHex6=s=>/^#[0-9a-fA-F]{6}$/.test(s);
+function lum(hex){const n=parseInt(hex.slice(1),16);return (0.299*(n>>16&255)+0.587*(n>>8&255)+0.114*(n&255))/255}
+function mixHex(a,b,f){const x=parseInt(a.slice(1),16),y=parseInt(b.slice(1),16);const m=(p,q)=>Math.round(p*(1-f)+q*f);return '#'+((1<<24)+(m(x>>16&255,y>>16&255)<<16)+(m(x>>8&255,y>>8&255)<<8)+m(x&255,y&255)).toString(16).slice(1)}
+function hexA(hex,a){const n=parseInt(hex.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')'}
+function applyTheme(){
+  const t=getTheme(),el=document.documentElement,st=el.style;
+  el.dataset.theme=t.mode;
+  ['--bg','--panel','--panel2','--txt','--mut','--line','--hdrbg'].forEach(v=>st.removeProperty(v));
+  const cs=getComputedStyle(el),def=v=>cs.getPropertyValue(v).trim();
+  const u=t.ui||{};
+  const ok=k=>u[k]&&isHex6(u[k]);
+  const bg=ok('bg')?u.bg:def('--bg');
+  st.setProperty('--acc',t.accent);
+  st.setProperty('--acc-dim',dimHex(t.accent,t.mode==='light'?0.78:0.55));
+  if(ok('bg'))st.setProperty('--bg',u.bg);
+  if(ok('panel')){st.setProperty('--panel',u.panel);st.setProperty('--panel2',lum(u.panel)>0.5?dimHex(u.panel,0.93):mixHex(u.panel,'#ffffff',0.07))}
+  if(ok('txt')){st.setProperty('--txt',u.txt);st.setProperty('--mut',mixHex(u.txt,bg,0.42))}
+  if(ok('line'))st.setProperty('--line',u.line);
+  if(ok('hdr'))st.setProperty('--hdrbg',hexA(u.hdr,0.85));
+  else if(ok('bg'))st.setProperty('--hdrbg',hexA(u.bg,0.85));
+}
 function saveTheme(t){localStorage.setItem('sf_theme',JSON.stringify(t))}
+const UI_PRESETS={
+  bg:['#070a09','#0d1420','#150f1f','#f4f6f1'],
+  panel:['#0d1310','#141c2a','#1e1630','#ffffff'],
+  txt:['#e7f0ea','#dbe7ff','#f3e8ff','#17251d'],
+  line:['#1c2620','#26334a','#33254d','#cfdbcf'],
+  hdr:['#070a09','#0d1420','#150f1f','#ffffff']
+};
 function renderThemePanel(){
   const t=getTheme();
   $('#th-dark').classList.toggle('on',t.mode==='dark');
@@ -18,7 +45,21 @@ function renderThemePanel(){
   const paint=(el,list)=>{el.innerHTML='';list.forEach(hex=>{const s=document.createElement('button');s.type='button';s.className='sw'+(t.accent.toLowerCase()===hex?' on':'');s.style.background=hex;s.onclick=()=>{const th=getTheme();th.accent=hex;saveTheme(th);applyTheme();renderThemePanel()};el.appendChild(s)})};
   paint($('#th-basic'),ACCENTS.slice(0,ACC_BASIC));
   paint($('#th-pro-sw'),ACCENTS.slice(ACC_BASIC));
+  const u=t.ui||{};
+  $$('#th-ui .th-row').forEach(row=>{
+    const v=row.dataset.var,sw=row.querySelector('.swatches'),inp=row.querySelector('input');
+    const cur=u[v]||'';
+    sw.innerHTML='';
+    UI_PRESETS[v].forEach(hex=>{
+      const s=document.createElement('button');s.type='button';s.className='sw'+(cur.toLowerCase()===hex?' on':'');s.style.background=hex;
+      s.onclick=()=>{const th=getTheme();th.ui=th.ui||{};th.ui[v]=hex;saveTheme(th);applyTheme();renderThemePanel()};
+      sw.appendChild(s);
+    });
+    inp.value=cur;
+    inp.onchange=()=>{let val=inp.value.trim();if(/^[0-9a-fA-F]{6}$/.test(val))val='#'+val;if(!isHex6(val)){inp.value=cur;return}const th=getTheme();th.ui=th.ui||{};th.ui[v]=val.toLowerCase();saveTheme(th);applyTheme();renderThemePanel()};
+  });
 }
+$('#th-reset').onclick=()=>{const t=getTheme();delete t.ui;saveTheme(t);applyTheme();renderThemePanel()};
 $('#th-dark').onclick=()=>{const t=getTheme();t.mode='dark';saveTheme(t);applyTheme();renderThemePanel()};
 $('#th-light').onclick=()=>{const t=getTheme();t.mode='light';saveTheme(t);applyTheme();renderThemePanel()};
 $('#th-hex-go').onclick=()=>{let v=$('#th-hex').value.trim();if(/^[0-9a-fA-F]{6}$/.test(v))v='#'+v;if(!/^#[0-9a-fA-F]{6}$/.test(v)){$('#th-hex').value='';return}const t=getTheme();t.accent=v.toLowerCase();saveTheme(t);applyTheme();renderThemePanel()};
@@ -299,6 +340,7 @@ function renderCal(){
     cal.appendChild(col);
   }
   $('#cal-empty').classList.toggle('hidden',data.classes.length>0);
+  syncSampleBtns();
   $('.cal-wrap').classList.toggle('hidden',data.classes.length===0);
   $('#cal-m').classList.toggle('hidden',data.classes.length===0);
   renderCalM();fillSubjSelects();
@@ -370,17 +412,38 @@ $('#m-save').onclick=()=>{
   else data.classes.push({id:Date.now(),name,day,start,end,color:mColor});
   save();$('#overlay').classList.add('hidden');renderCal();
 };
-$('#btn-sample-cal').onclick=()=>{seedCal()};
-
+/* datos de ejemplo: marca y borrado selectivo */
+const SAMPLE_CAL=[
+  {name:'Matemáticas',day:0,start:'09:00',end:'10:30',color:COLORS[1]},
+  {name:'Programación',day:0,start:'11:00',end:'13:00',color:COLORS[0]},
+  {name:'Inglés',day:1,start:'10:00',end:'11:30',color:COLORS[3]},
+  {name:'Redes',day:2,start:'09:00',end:'11:00',color:COLORS[4]},
+  {name:'Gym',day:3,start:'16:00',end:'17:30',color:COLORS[2]},
+  {name:'Proyecto',day:4,start:'09:30',end:'11:00',color:COLORS[0]}
+];
+function isSampleCal(c){return !!(c.ex)||SAMPLE_CAL.some(s=>c.name===s.name&&c.day===s.day&&c.start===s.start&&c.end===s.end)}
 function seedCal(){
-  data.classes=[
-    {id:1,name:'Matemáticas',day:0,start:'09:00',end:'10:30',color:COLORS[1]},
-    {id:2,name:'Programación',day:0,start:'11:00',end:'13:00',color:COLORS[0]},
-    {id:3,name:'Inglés',day:1,start:'10:00',end:'11:30',color:COLORS[3]},
-    {id:4,name:'Redes',day:2,start:'09:00',end:'11:00',color:COLORS[4]},
-    {id:5,name:'Gym',day:3,start:'16:00',end:'17:30',color:COLORS[2]},
-    {id:6,name:'Proyecto',day:4,start:'09:30',end:'11:00',color:COLORS[0]},
-  ];save();renderCal();
+  const base=Date.now();
+  SAMPLE_CAL.forEach((s,i)=>data.classes.push(Object.assign({id:base+i,ex:1},s)));
+  save();renderCal();
+}
+async function unseed(kind){
+  const yes=await ask({title:'¿Quitar los datos de ejemplo?',msg:'Se quitan solo los de ejemplo. Lo que hayas añadido tú se queda.',yes:'Quitar',no:'Cancelar',danger:false});
+  if(!yes)return;
+  if(kind==='cal'){data.classes=data.classes.filter(c=>!isSampleCal(c));save();renderCal()}
+  if(kind==='dl'){data.deadlines=data.deadlines.filter(d=>!isSampleDl(d));save();renderDeadlines()}
+  if(kind==='notes'){
+    data.notes=data.notes.filter(n=>!isSampleNote(n));
+    if(curNote&&!data.notes.some(n=>n.id===curNote)){curNote=null;$('#note-title').value='';$('#note-body').value='';$('#notes').classList.add('m-show-list')}
+    save();renderNotes();
+  }
+}
+function syncSampleBtns(){
+  if(!data)return;
+  const set=(id,has,kind,seedFn)=>{const b=$(id);if(!b)return;b.textContent=has?'Quitar ejemplo':'Datos de ejemplo';b.onclick=()=>{if(has)unseed(kind);else seedFn()}};
+  set('#btn-sample-cal',data.classes.some(isSampleCal),'cal',seedCal);
+  set('#btn-sample-dl',data.deadlines.some(isSampleDl),'dl',seedDl);
+  set('#btn-sample-notes',data.notes.some(isSampleNote),'notes',seedNotes);
 }
 
 /* ---------- apuntes ---------- */
@@ -410,6 +473,7 @@ function renderNotes(){
     d.onclick=()=>openNote(n.id);box.appendChild(d);
   });
   $('#notes-empty').classList.toggle('hidden',data.notes.length>0);
+  syncSampleBtns();
   $('#notes').classList.toggle('hidden',data.notes.length===0&&false);
 }
 function openNote(id){
@@ -447,12 +511,15 @@ function noteChanged(){
   clearTimeout(saveT);saveT=setTimeout(()=>{save();renderNotes();$('#note-saved').classList.remove('hidden');setTimeout(()=>$('#note-saved').classList.add('hidden'),1500)},600);
 }
 $('#note-title').oninput=noteChanged;$('#note-body').oninput=noteChanged;
-$('#btn-sample-notes').onclick=()=>{seedNotes()};
 function seedNotes(){
   data.notes.push(
-    {id:Date.now(),title:'Ideas proyecto',body:'- App de horarios con IA\n- Empezar por horario + apuntes + pomodoro\n- La IA que ordene la semana va en fase 2',subject:'Proyecto',updated:Date.now()},
-    {id:Date.now()+1,title:'Chuleta pomodoro',body:'25 min enfoque + 5 descanso.\nA la cuarta ronda, descanso largo de 15.\nSin móvil durante el enfoque.',subject:null,updated:Date.now()}
+    {id:Date.now(),title:'Ideas proyecto',body:'- App de horarios con IA\n- Empezar por horario + apuntes + pomodoro\n- La IA que ordene la semana va en fase 2',subject:'Proyecto',updated:Date.now(),ex:1},
+    {id:Date.now()+1,title:'Chuleta pomodoro',body:'25 min enfoque + 5 descanso.\nA la cuarta ronda, descanso largo de 15.\nSin móvil durante el enfoque.',subject:null,updated:Date.now(),ex:1}
   );save();renderNotes();
+}
+function isSampleNote(n){
+  return !!(n.ex)||(n.title==='Ideas proyecto'&&String(n.body||'').startsWith('- App de horarios con IA'))
+    ||(n.title==='Chuleta pomodoro'&&String(n.body||'').startsWith('25 min enfoque'));
 }
 
 /* ---------- entregas ---------- */
@@ -489,6 +556,7 @@ function renderDeadlines(){
     box.appendChild(row);
   });
   $('#dl-empty').classList.toggle('hidden',data.deadlines.length>0);
+  syncSampleBtns();
 }
 $('#btn-add-dl').onclick=()=>{
   $('#dl-name').value='';$('#dl-due').value='';$('#dl-err').textContent='';
@@ -516,13 +584,15 @@ $('#dl-save').onclick=()=>{
   data.settings.remindDef=rem;
   save();$('#overlay-dl').classList.add('hidden');renderDeadlines();checkReminders();
 };
-$('#btn-sample-dl').onclick=()=>{seedDl()};
 function seedDl(){
   const day=86400000,now=Date.now();
   data.deadlines.push(
-    {id:now+1,name:'Práctica 2 de redes',due:new Date(now+2*day).toISOString().slice(0,16),done:false,remind:1440},
-    {id:now+2,name:'Examen de mates',due:new Date(now+5*day).toISOString().slice(0,16),done:false,remind:60}
+    {id:now+1,name:'Práctica 2 de redes',due:new Date(now+2*day).toISOString().slice(0,16),done:false,remind:1440,ex:1},
+    {id:now+2,name:'Examen de mates',due:new Date(now+5*day).toISOString().slice(0,16),done:false,remind:60,ex:1}
   );save();renderDeadlines();
+}
+function isSampleDl(d){
+  return !!(d.ex)||(d.name==='Práctica 2 de redes'&&d.remind===1440)||(d.name==='Examen de mates'&&d.remind===60);
 }
 setInterval(()=>{if(!me)return;if(!$('#view-entregas').classList.contains('hidden'))renderDeadlines();checkReminders()},60000);
 
@@ -541,18 +611,21 @@ function sanitizeImport(d){
   out.classes=arr(d.classes).slice(0,200).map(c=>c&&typeof c==='object'?c:{}).map(c=>({
     id:num(c.id,Date.now(),1,9e15),name:String(c.name||'').slice(0,40)||'Clase',
     day:num(c.day,0,0,4),start:isTime(c.start)?c.start:'09:00',end:isTime(c.end)?c.end:'10:00',
-    color:isHex(c.color)?c.color:COLORS[0]
+    color:isHex(c.color)?c.color:COLORS[0],
+    ...(c.ex?{ex:1}:{})
   })).filter(c=>toMin(c.start)<toMin(c.end));
   out.deadlines=arr(d.deadlines).slice(0,300).map(x=>x&&typeof x==='object'?x:{}).map(x=>({
     id:num(x.id,Date.now(),1,9e15),name:String(x.name||'').slice(0,60)||'Entrega',
     due:isDue(x.due)?x.due.slice(0,16):new Date().toISOString().slice(0,16),
     done:!!x.done,remind:Number.isFinite(Number(x.remind))&&Number(x.remind)>0?Math.min(43200,Math.round(Number(x.remind))):null,
-    notified:!!x.notified
+    notified:!!x.notified,
+    ...(x.ex?{ex:1}:{})
   }));
   out.notes=arr(d.notes).slice(0,500).map(n=>n&&typeof n==='object'?n:{}).map(n=>({
     id:num(n.id,Date.now(),1,9e15),title:String(n.title||'').slice(0,80),
     body:String(n.body||'').slice(0,50000),updated:num(n.updated,Date.now(),0,9e15),
-    subject:typeof n.subject==='string'&&n.subject.trim()?n.subject.trim().slice(0,40):null
+    subject:typeof n.subject==='string'&&n.subject.trim()?n.subject.trim().slice(0,40):null,
+    ...(n.ex?{ex:1}:{})
   }));
   if(d.settings&&typeof d.settings==='object'){
     out.settings.focus=num(d.settings.focus,25,1,180);
