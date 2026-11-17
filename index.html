@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>StudyFlow - horario, apuntes y pomodoro</title>
 <meta name="description" content="Organiza tu horario, tus apuntes y tus pomodoros en un solo sitio.">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://gc.zgo.at; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://studyflow.goatcounter.com; connect-src 'self' https://studyflow.goatcounter.com; manifest-src 'self'; base-uri 'none'; form-action 'self'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://gc.zgo.at; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://studyflow.goatcounter.com; connect-src 'self' https://studyflow.goatcounter.com https://kyhmcyhgjljpgzckxsjf.supabase.co; manifest-src 'self'; base-uri 'none'; form-action 'self'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#070a09">
 <link rel="manifest" href="manifest.webmanifest">
@@ -239,13 +239,13 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
       <button id="tab-reg">Crear cuenta</button>
     </div>
     <form id="form-auth">
-      <input id="a-name" placeholder="Nombre de usuario" autocomplete="username" maxlength="20" required>
-      <input id="a-pass" type="password" placeholder="Contraseña" autocomplete="current-password" required>
+      <input id="a-name" type="email" placeholder="Email" autocomplete="email" maxlength="60" required>
+      <input id="a-pass" type="password" placeholder="Contraseña (mín. 6)" autocomplete="current-password" required>
       <div class="err" id="a-err"></div>
       <button class="btn" id="a-go" type="submit">Entrar</button>
     </form>
     <button class="btn ghost" id="btn-theme" style="width:100%;margin-top:10px">Personalizar colores</button>
-    <p class="foot">fase 1 · tus datos se guardan solo en este navegador</p>
+    <p class="foot">fase 2 beta · tus datos se sincronizan con tu cuenta</p>
   </div>
 </div>
 
@@ -502,6 +502,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 </div>
 
 <script data-goatcounter="https://studyflow.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
-<script src="app.js?v=5"></script>
+<script src="sb.js?v=1"></script>
+<script src="app.js?v=6"></script>
 </body>
-</html>
+                                                                                                                                                                                                                                     </html>
