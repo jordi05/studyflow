@@ -230,6 +230,10 @@ function showAuthPane(p){
   $('#form-newpass').classList.toggle('hidden',p!=='newpass');
 }
 const okMsg=(el,m)=>{el.textContent=m;el.classList.add('ok')};
+function showLanding(){$('#landing').classList.remove('hidden');$('#auth').classList.add('hidden');$('#app').classList.add('hidden')}
+function showAuth(){$('#landing').classList.add('hidden');$('#auth').classList.remove('hidden');$('#app').classList.add('hidden')}
+$$('#landing [data-go]').forEach(b=>b.onclick=()=>{showAuth();setAuthMode(b.dataset.go)});
+$('#a-back-landing').onclick=()=>showLanding();
 $('#tab-login').onclick=()=>setAuthMode('login');
 $('#tab-reg').onclick=()=>setAuthMode('reg');
 $('#a-forgot').onclick=()=>{showAuthPane('reset');$('#r-err').textContent='';$('#r-err').classList.remove('ok');$('#r-name').value=$('#a-name').value};
@@ -292,7 +296,7 @@ function normalize(){
   data.settings=Object.assign({focus:25,short:5,long:15,remindDef:null,goal:0},data.settings||{});
 }
 function showApp(email){
-  $('#auth').classList.add('hidden');$('#app').classList.remove('hidden');
+  $('#landing').classList.add('hidden');$('#auth').classList.add('hidden');$('#app').classList.remove('hidden');
   $('#u-name').textContent=email;$('#u-av').textContent=(email[0]||'?').toUpperCase();
   syncSettingsUI();renderAll();
   setTimeout(()=>maybeStartTour(0),900);
@@ -979,10 +983,10 @@ if(sbHash){
   history.replaceState(null,'',location.pathname+location.search);
   (async()=>{
     const u=await sbGetUser(sbHash.access_token);
-    if(!u){showAuthPane('auth');$('#a-err').textContent='El enlace ha caducado o no es válido. Pide uno nuevo.';return}
+    if(!u){showAuth();showAuthPane('auth');$('#a-err').textContent='El enlace ha caducado o no es válido. Pide uno nuevo.';return}
     sbSetSession({access_token:sbHash.access_token,refresh_token:sbHash.refresh_token,expires_at:sbHash.expires_at,user:u});
     if(sbHash.type==='recovery'){
-      showAuthPane('newpass');
+      showAuth();showAuthPane('newpass');
     }else{
       await enterCloud(u,false);
     }
