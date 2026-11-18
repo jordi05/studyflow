@@ -821,6 +821,11 @@ setInterval(()=>{if(!me)return;if(!$('#view-entregas').classList.contains('hidde
 /* ---------- cuenta ---------- */
 $('#u-av').onclick=()=>{$('#acc-err').textContent='';updateNtfBtn();$('#overlay-acc').classList.remove('hidden')};
 $('#u-av').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('#u-av').click()}};
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  const open=$$('.overlay').find(o=>!o.classList.contains('hidden'));
+  if(open)open.classList.add('hidden');
+});
 $('#acc-close').onclick=()=>$('#overlay-acc').classList.add('hidden');
 $('#overlay-acc').onclick=e=>{if(e.target.id==='overlay-acc')$('#overlay-acc').classList.add('hidden')};
 function sanitizeImport(d){
