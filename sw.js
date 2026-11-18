@@ -1,3 +1,4 @@
+// despliegue: fuerza rebuild para aplicar vercel.json
 const C = 'sf-v30';
 const A = ['./', './index.html', './app.js?v=28', './theme.js?v=6', './sb.js?v=2', './driver.js?v=1', './driver.css?v=2', './manifest.webmanifest', './icon.svg'];
 self.addEventListener('install', e => {
@@ -16,3 +17,4 @@ self.addEventListener('fetch', e => {
     }).catch(() => caches.match(e.request).then(r => r || caches.match('./index.html')))
   );
 });
+
