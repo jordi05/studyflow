@@ -5,8 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>StudyFlow - horario, apuntes y pomodoro</title>
 <meta name="description" content="Organiza tu horario, tus apuntes y tus pomodoros en un solo sitio.">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://gc.zgo.at; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://studyflow.goatcounter.com; connect-src 'self' https://studyflow.goatcounter.com https://kyhmcyhgjljpgzckxsjf.supabase.co; manifest-src 'self'; base-uri 'none'; form-action 'self'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://gc.zgo.at; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://studyflow.goatcounter.com; connect-src 'self' https://studyflow.goatcounter.com https://gc.zgo.at https://kyhmcyhgjljpgzckxsjf.supabase.co; manifest-src 'self'; base-uri 'none'; form-action 'self'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
+<link rel="preconnect" href="https://kyhmcyhgjljpgzckxsjf.supabase.co" crossorigin>
+<link rel="dns-prefetch" href="https://kyhmcyhgjljpgzckxsjf.supabase.co">
+<link rel="preconnect" href="https://studyflow.goatcounter.com">
+<link rel="dns-prefetch" href="https://studyflow.goatcounter.com">
+<link rel="preconnect" href="https://gc.zgo.at">
+<link rel="dns-prefetch" href="https://gc.zgo.at">
 <meta name="theme-color" content="#070a09">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="icon.svg">
@@ -475,7 +481,7 @@ select option:checked{background:var(--acc-dim)}
     <p class="ln-mini">Se instala como app en el móvil desde el navegador, sin tiendas.</p>
   </section>
 
-  <footer class="ln-foot">StudyFlow · fase 2 beta · hecho por un estudiante, para estudiantes</footer>
+  <footer class="ln-foot">StudyFlow · fase 2 beta · hecho por un estudiante, para estudiantes · <a href="privacidad.html" style="color:var(--mut)">Privacidad</a></footer>
 </div>
 
 <!-- ============ AUTH ============ -->
@@ -493,14 +499,14 @@ select option:checked{background:var(--acc-dim)}
     <form id="form-auth" novalidate>
       <input id="a-name" type="email" placeholder="Email" autocomplete="email" maxlength="60" required>
       <input id="a-pass" type="password" placeholder="Contraseña (mín. 6)" autocomplete="current-password" required>
-      <div class="err" id="a-err"></div>
+      <div class="err" id="a-err" role="alert"></div>
       <button class="btn" id="a-go" type="submit">Entrar</button>
       <button class="linklike" id="a-forgot" type="button">¿Olvidaste tu contraseña?</button>
     </form>
     <form id="form-reset" class="hidden" novalidate>
       <p class="tag" style="margin-bottom:4px">Te enviamos un enlace para restablecer tu contraseña.</p>
       <input id="r-name" type="email" placeholder="Email" autocomplete="email" maxlength="60" required>
-      <div class="err" id="r-err"></div>
+      <div class="err" id="r-err" role="alert"></div>
       <button class="btn" id="r-go" type="submit">Enviar enlace</button>
       <button class="linklike" id="r-back" type="button">Volver a entrar</button>
     </form>
@@ -508,12 +514,12 @@ select option:checked{background:var(--acc-dim)}
       <p class="tag" style="margin-bottom:4px">Escribe tu nueva contraseña.</p>
       <input id="n-pass" type="password" placeholder="Nueva contraseña (mín. 6)" autocomplete="new-password" required>
       <input id="n-pass2" type="password" placeholder="Repite la contraseña" autocomplete="new-password" required>
-      <div class="err" id="n-err"></div>
+      <div class="err" id="n-err" role="alert"></div>
       <button class="btn" id="n-go" type="submit">Guardar contraseña</button>
     </form>
     <button class="btn ghost" id="btn-theme" style="width:100%;margin-top:10px">Personalizar colores</button>
     <button class="linklike" id="a-back-landing" type="button" style="margin-top:8px">Volver a la presentación</button>
-    <p class="foot">fase 2 beta · tus datos se sincronizan con tu cuenta</p>
+    <p class="foot">fase 2 beta · tus datos se sincronizan con tu cuenta · <a href="privacidad.html" style="color:var(--mut)">Privacidad</a></p>
   </div>
 </div>
 
@@ -823,6 +829,6 @@ select option:checked{background:var(--acc-dim)}
 <script data-goatcounter="https://studyflow.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <script src="driver.js?v=1"></script>
 <script src="sb.js?v=2"></script>
-<script src="app.js?v=27"></script>
+<script src="app.js?v=28"></script>
 </body>
   </html>
