@@ -78,6 +78,8 @@ nav button.on{background:var(--panel2);color:var(--acc);font-weight:800}
 .userbox .out{color:var(--mut);font-size:12px}
 main{flex:1;min-width:0;padding:20px;max-width:1100px;width:100%;margin:0 auto}
 #install-banner{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:70;display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.35);max-width:min(520px,calc(100vw - 24px))}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:80;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--danger);border-radius:12px;padding:10px 14px;font-size:13px;line-height:1.4;max-width:min(480px,calc(100vw - 24px));box-shadow:0 10px 30px rgba(0,0,0,.35)}
+body.ib-on #toast{bottom:100px}
 #install-banner .ib-ic{width:40px;height:40px;border-radius:10px;flex:0 0 auto}
 #install-banner .ib-tx{flex:1;min-width:0}
 #install-banner .ib-tx b{display:block;font-size:14px}
@@ -405,6 +407,7 @@ select option:checked{background:var(--acc-dim)}
   #install-banner .ib-tx span{display:none}
   #install-banner .btn{padding:7px 12px;font-size:12px}
   body.ib-on{padding-bottom:78px}
+  body.ib-on #toast{bottom:64px}
 }
 </style>
 <script src="theme.js?v=6"></script>
@@ -524,7 +527,7 @@ select option:checked{background:var(--acc-dim)}
     </div>
     <div class="userbox">
       <button class="out" id="btn-theme2" title="Personalizar colores"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="8.5" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="7.5" r="1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="10" r="1" fill="currentColor" stroke="none"/><path d="M12 21c-1.5 0-2-1-1.2-2.2.7-1 .4-2.3-.8-2.3H8"/></svg></button>
-      <div class="avatar" id="u-av" title="Mi cuenta">?</div>
+      <div class="avatar" id="u-av" title="Mi cuenta" role="button" tabindex="0" aria-label="Mi cuenta">?</div>
       <span class="uname" id="u-name"></span>
       <button class="out" id="btn-out" title="Cerrar sesión">salir</button>
     </div>
@@ -661,6 +664,9 @@ select option:checked{background:var(--acc-dim)}
   </div>
 </div>
 <div id="drawer-bg" class="hidden"></div>
+
+<!-- aviso flotante (errores de sincronización, etc.) -->
+<div id="toast" class="hidden" role="status"></div>
 
 <!-- banner instalar app -->
 <div id="install-banner" class="hidden">
@@ -817,6 +823,6 @@ select option:checked{background:var(--acc-dim)}
 <script data-goatcounter="https://studyflow.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <script src="driver.js?v=1"></script>
 <script src="sb.js?v=2"></script>
-<script src="app.js?v=26"></script>
+<script src="app.js?v=27"></script>
 </body>
   </html>
