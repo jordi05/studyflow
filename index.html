@@ -370,42 +370,91 @@ select option:checked{background:var(--acc-dim)}
 :root{accent-color:var(--acc)}
 
 /* ---------- landing ---------- */
-#landing{min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:calc(18px + env(safe-area-inset-top)) 18px calc(30px + env(safe-area-inset-bottom));gap:44px}
-.ln-top{width:100%;max-width:960px;display:flex;align-items:center;justify-content:space-between}
-.ln-top .brand{margin:0}
-.ln-hero{max-width:640px;text-align:center;display:flex;flex-direction:column;gap:16px;align-items:center;margin-top:10px}
-.ln-hero h1{font-size:32px;line-height:1.2;font-weight:800}
+#landing{min-height:100dvh;display:flex;flex-direction:column;align-items:center;gap:0;position:relative;overflow-x:clip}
+#landing::before{content:"";position:absolute;top:-180px;left:50%;transform:translateX(-50%);width:900px;height:520px;background:radial-gradient(ellipse at center,color-mix(in srgb,var(--acc) 13%,transparent),transparent 65%);pointer-events:none;z-index:0}
+.ln-nav{position:sticky;top:0;z-index:20;width:100%;max-width:1020px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 20px;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.ln-nav .brand{margin:0}
+.ln-links{display:flex;gap:22px}
+.ln-links a{color:var(--mut);font-size:13px;font-weight:600}
+.ln-links a:hover{color:var(--txt)}
+.ln-nav-cta{display:flex;gap:8px;align-items:center}
+.ln-nav-cta .btn{padding:8px 14px;font-size:13px}
+.ln-wrap{width:100%;max-width:1020px;padding:0 20px;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
+.ln-hero{max-width:700px;text-align:center;display:flex;flex-direction:column;gap:18px;align-items:center;padding:76px 0 30px}
+.ln-chip{font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--acc);border:1px solid var(--acc-dim);border-radius:999px;padding:6px 14px;background:color-mix(in srgb,var(--acc) 8%,transparent)}
+.ln-hero h1{font-size:clamp(31px,4.8vw,48px);line-height:1.13;font-weight:800;letter-spacing:-.5px}
 .ln-hero h1 span{color:var(--acc)}
-.ln-hero p{color:var(--mut);font-size:15px;line-height:1.55;max-width:520px}
-.ln-ctas{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-.ln-ctas .btn{padding:12px 20px;font-size:15px}
+.ln-hero p{color:var(--mut);font-size:16px;line-height:1.6;max-width:560px}
+.ln-ctas{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:4px}
+.ln-ctas .btn{padding:13px 22px;font-size:15px}
 .ln-mini{font-size:12px;color:var(--mut);font-family:var(--mono)}
-.ln-sec{width:100%;max-width:960px;display:flex;flex-direction:column;gap:16px;align-items:center}
-.ln-sec h2{font-size:22px;font-weight:800;text-align:center}
-.ln-sched{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px;box-shadow:0 24px 60px -20px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.04)}
+.ln-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;margin:26px 0 10px}
+.ln-strip div{display:flex;align-items:center;justify-content:center;gap:9px;border:1px solid var(--line);border-radius:12px;padding:11px 14px;color:var(--mut);font-size:12.5px;font-weight:600;background:color-mix(in srgb,var(--panel) 55%,transparent)}
+.ln-strip svg{width:16px;height:16px;stroke:var(--acc);flex:none}
+.ln-sec{width:100%;display:flex;flex-direction:column;gap:20px;align-items:center;padding:64px 0 8px;scroll-margin-top:72px}
+.ln-sec h2{font-size:clamp(22px,3vw,30px);font-weight:800;text-align:center;letter-spacing:-.3px}
+.ln-sub{color:var(--mut);font-size:14px;text-align:center;max-width:520px;margin-top:-10px}
+.ln-frame{width:100%;max-width:860px;background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 30px 80px -30px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.04)}
+.ln-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel2)}
+.ln-dot{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.ln-url{margin-left:8px;font-family:var(--mono);font-size:11px;color:var(--mut);border:1px solid var(--line);border-radius:8px;padding:3px 12px;background:var(--bg)}
+.ln-sched{padding:18px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
 .ln-day{display:flex;flex-direction:column;gap:8px;min-width:0}
 .ln-day>b{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;text-align:center;font-weight:700}
 .ln-cls{border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:10px;padding:8px 9px;background:var(--panel2);font-size:12px;line-height:1.35;min-width:0}
 .ln-cls i{font-style:normal;display:block;color:var(--mut);font-size:11px;font-family:var(--mono)}
 .ln-cls.free{border-style:dashed;border-left-color:var(--line);border-left-width:1px;color:var(--mut);text-align:center;background:transparent}
 .ln-cap{font-size:12px;color:var(--mut);text-align:center}
+.ln-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%}
+.ln-step{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.ln-step em{font-style:normal;font-family:var(--mono);font-size:22px;color:var(--acc);font-weight:700}
+.ln-step b{font-size:15px}
+.ln-step span{font-size:13px;color:var(--mut);line-height:1.5}
 .ln-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%}
-.ln-f{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.ln-f{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:8px;transition:border-color .15s ease,transform .15s ease}
+.ln-f:hover{border-color:var(--acc-dim);transform:translateY(-2px)}
 .ln-f svg{width:20px;height:20px;stroke:var(--acc)}
 .ln-f b{font-size:14px}
 .ln-f span{font-size:12.5px;color:var(--mut);line-height:1.45}
-.ln-final{display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center}
-.ln-final .btn{padding:12px 22px;font-size:15px}
-.ln-foot{color:var(--mut);font-size:12px;font-family:var(--mono);text-align:center}
+.ln-why{display:grid;grid-template-columns:1.1fr .9fr;gap:34px;width:100%;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:30px}
+.ln-why h2{text-align:left!important}
+.ln-why p{color:var(--mut);font-size:14px;line-height:1.65}
+.ln-why ul{list-style:none;display:flex;flex-direction:column;gap:12px}
+.ln-why li{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.5}
+.ln-why li svg{width:17px;height:17px;stroke:var(--acc);flex:none;margin-top:1px}
+.ln-why a{color:var(--acc)}
+.ln-faq{display:flex;flex-direction:column;gap:10px;width:100%;max-width:720px}
+.ln-faq details{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:0 18px}
+.ln-faq summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:15px 0;font-weight:700;font-size:14px}
+.ln-faq summary::-webkit-details-marker{display:none}
+.ln-faq summary::after{content:"+";font-family:var(--mono);color:var(--acc);font-size:18px;flex:none;transition:transform .15s ease}
+.ln-faq details[open] summary::after{transform:rotate(45deg)}
+.ln-faq details p{color:var(--mut);font-size:13px;line-height:1.6;padding:0 0 15px}
+.ln-faq a{color:var(--acc)}
+.ln-final{display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center;width:100%;padding:70px 0 60px}
+.ln-final h2{font-size:clamp(24px,3.4vw,34px);font-weight:800}
+.ln-final .btn{padding:13px 24px;font-size:15px}
+.ln-foot{width:100%;border-top:1px solid var(--line);padding:22px 20px calc(26px + env(safe-area-inset-bottom));display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;color:var(--mut);font-size:12px;font-family:var(--mono)}
+.ln-foot nav{display:flex;flex-direction:row;gap:18px;align-items:center}
+.ln-foot a{color:var(--mut)}
+.ln-foot a:hover{color:var(--txt)}
+.ln-foot button{background:none;border:0;color:var(--mut);font:inherit;cursor:pointer;padding:0}
+.ln-foot button:hover{color:var(--txt)}
 @media (max-width:760px){
-  .ln-hero h1{font-size:26px}
+  .ln-links{display:none}
+  .ln-hero{padding:52px 0 22px}
+  .ln-strip{grid-template-columns:1fr}
   .ln-sched{grid-template-columns:repeat(2,1fr)}
+  .ln-steps{grid-template-columns:1fr}
   .ln-grid{grid-template-columns:1fr 1fr}
-  #landing{gap:36px}
+  .ln-why{grid-template-columns:1fr;gap:18px;padding:22px}
+  .ln-sec{padding:46px 0 6px}
 }
 @media (max-width:430px){
   .ln-grid{grid-template-columns:1fr}
+  .ln-nav-cta .btn:not(.ghost){display:none}
 }
+
 @media (max-width:640px){
   #install-banner{left:12px;right:12px;transform:none;max-width:none;bottom:10px;padding:8px 10px;gap:8px;border-radius:12px}
   #install-banner .ib-ic{width:26px;height:26px;border-radius:7px}
@@ -422,15 +471,25 @@ select option:checked{background:var(--acc-dim)}
 
 <!-- ============ LANDING ============ -->
 <div id="landing">
-  <div class="ln-top">
+  <div class="ln-nav">
     <div class="brand">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 20 6v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
       <b>Study<span>Flow</span></b>
     </div>
-    <button class="btn ghost" data-go="login">Entrar</button>
+    <div class="ln-links">
+      <a href="#ln-preview">La app</a>
+      <a href="#ln-funciones">Funciones</a>
+      <a href="#ln-preguntas">Preguntas</a>
+    </div>
+    <div class="ln-nav-cta">
+      <button class="btn ghost" data-go="login">Entrar</button>
+      <button class="btn" data-go="reg">Crear cuenta</button>
+    </div>
   </div>
 
+  <div class="ln-wrap">
   <section class="ln-hero">
+    <span class="ln-chip">Fase 2 beta · gratis para siempre</span>
     <h1>Tu horario, tus apuntes y tu enfoque.<span> En un solo sitio.</span></h1>
     <p>StudyFlow organiza la vida de estudiante: clases, entregas, apuntes, notas y pomodoros. Gratis, sin anuncios y con tus datos sincronizados en todos tus dispositivos.</p>
     <div class="ln-ctas">
@@ -440,30 +499,48 @@ select option:checked{background:var(--acc-dim)}
     <p class="ln-mini">Sin tarjeta. Con tu email y una contraseña basta.</p>
   </section>
 
-  <section class="ln-sec">
+  <div class="ln-strip">
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Sin tarjeta ni anuncios</div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>Se instala como app</div>
+    <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 20 6v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>Tus datos, siempre tuyos</div>
+  </div>
+
+  <section class="ln-sec" id="ln-preview">
     <h2>Así se ve tu semana</h2>
-    <div class="ln-sched">
-      <div class="ln-day"><b>Lun</b>
-        <div class="ln-cls" style="border-left-color:#3fb68b">Matemáticas<i>9:00 - 10:30</i></div>
-        <div class="ln-cls" style="border-left-color:#4ea1ff">Programación<i>11:00 - 13:00</i></div>
-      </div>
-      <div class="ln-day"><b>Mar</b>
-        <div class="ln-cls" style="border-left-color:#c084fc">Inglés<i>10:00 - 11:30</i></div>
-      </div>
-      <div class="ln-day"><b>Mié</b>
-        <div class="ln-cls" style="border-left-color:#f2c14e">Redes<i>9:00 - 11:00</i></div>
-      </div>
-      <div class="ln-day"><b>Jue</b>
-        <div class="ln-cls free">libre</div>
-      </div>
-      <div class="ln-day"><b>Vie</b>
-        <div class="ln-cls" style="border-left-color:#4ea1ff">Proyecto<i>9:30 - 11:00</i></div>
+    <p class="ln-sub">Nada de capturas retocadas: esto es la propia app, con un horario de ejemplo.</p>
+    <div class="ln-frame">
+      <div class="ln-bar"><span class="ln-dot"></span><span class="ln-dot"></span><span class="ln-dot"></span><span class="ln-url">studyflow · horario</span></div>
+      <div class="ln-sched">
+        <div class="ln-day"><b>Lun</b>
+          <div class="ln-cls" style="border-left-color:#3fb68b">Matemáticas<i>9:00 - 10:30</i></div>
+          <div class="ln-cls" style="border-left-color:#4ea1ff">Programación<i>11:00 - 13:00</i></div>
+        </div>
+        <div class="ln-day"><b>Mar</b>
+          <div class="ln-cls" style="border-left-color:#c084fc">Inglés<i>10:00 - 11:30</i></div>
+        </div>
+        <div class="ln-day"><b>Mié</b>
+          <div class="ln-cls" style="border-left-color:#f2c14e">Redes<i>9:00 - 11:00</i></div>
+        </div>
+        <div class="ln-day"><b>Jue</b>
+          <div class="ln-cls free">libre</div>
+        </div>
+        <div class="ln-day"><b>Vie</b>
+          <div class="ln-cls" style="border-left-color:#4ea1ff">Proyecto<i>9:30 - 11:00</i></div>
+        </div>
       </div>
     </div>
-    <p class="ln-cap">Esto es un ejemplo de la vista real del horario: tus clases, con sus colores, de un vistazo.</p>
   </section>
 
   <section class="ln-sec">
+    <h2>Empieza en tres pasos</h2>
+    <div class="ln-steps">
+      <div class="ln-step"><em>01</em><b>Crea tu cuenta</b><span>Email y contraseña, un minuto. Sin tarjeta y sin datos raros.</span></div>
+      <div class="ln-step"><em>02</em><b>Monta tu horario</b><span>Cada asignatura con su color, sus entregas y sus exámenes.</span></div>
+      <div class="ln-step"><em>03</em><b>Estudia y mide</b><span>Pomodoros, apuntes y medias. Todo se sincroniza solo entre tus dispositivos.</span></div>
+    </div>
+  </section>
+
+  <section class="ln-sec" id="ln-funciones">
     <h2>Todo lo que llevas encima, ordenado</h2>
     <div class="ln-grid">
       <div class="ln-f"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><b>Horario semanal</b><span>Tu semana de un vistazo, cada asignatura con su color.</span></div>
@@ -475,14 +552,49 @@ select option:checked{background:var(--acc-dim)}
     </div>
   </section>
 
+  <section class="ln-sec">
+    <div class="ln-why">
+      <div>
+        <h2>Hecho por un estudiante, para estudiantes</h2>
+        <p style="margin-top:10px">StudyFlow no es una empresa: es el proyecto de una persona que quería dejar de tener el horario en una app, las entregas en otra y los apuntes en otra. Por eso es gratis, ligero y sin letra pequeña.</p>
+      </div>
+      <ul>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>Gratis de verdad, sin plan de pago escondido.</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>Sin anuncios y sin vender tus datos.</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>Puedes exportar o borrar tu cuenta cuando quieras.</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>Código abierto: <a href="https://github.com/jordi05/studyflow" target="_blank" rel="noopener noreferrer">míralo en GitHub</a>.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="ln-sec" id="ln-preguntas">
+    <h2>Preguntas frecuentes</h2>
+    <div class="ln-faq">
+      <details><summary>¿Es gratis de verdad?</summary><p>Sí. Todo lo que ves es gratis y no hay plan de pago. StudyFlow es un proyecto personal, no un negocio.</p></details>
+      <details><summary>¿Tengo que instalar algo?</summary><p>No: funciona en el navegador. Si quieres, puedes añadirla a la pantalla de inicio del móvil y se abre como una app, sin tiendas de por medio.</p></details>
+      <details><summary>¿Dónde se guardan mis datos?</summary><p>En tu cuenta, gestionada con Supabase (cifrado en tránsito y contraseña cifrada), y una copia en tu propio dispositivo para que la app vaya rápida. Tienes los detalles en la <a href="privacidad.html">página de privacidad</a>.</p></details>
+      <details><summary>¿Funciona sin internet?</summary><p>Sí: la app guarda tus datos en el dispositivo y sincroniza con tu cuenta cuando vuelve la conexión.</p></details>
+      <details><summary>¿Puedo borrar mi cuenta?</summary><p>Cuando quieras. Al borrarla se eliminan tus datos de la nube. No hay permanencia ni letra pequeña.</p></details>
+    </div>
+  </section>
+
   <section class="ln-final">
     <h2>Empieza en un minuto</h2>
     <button class="btn" data-go="reg">Crear cuenta gratis</button>
     <p class="ln-mini">Se instala como app en el móvil desde el navegador, sin tiendas.</p>
   </section>
+  </div>
 
-  <footer class="ln-foot">StudyFlow · fase 2 beta · hecho por un estudiante, para estudiantes · <a href="privacidad.html" style="color:var(--mut)">Privacidad</a></footer>
+  <footer class="ln-foot">
+    <span>StudyFlow · fase 2 beta · hecho por un estudiante, para estudiantes</span>
+    <nav>
+      <a href="privacidad.html">Privacidad</a>
+      <a href="https://github.com/jordi05/studyflow" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <button type="button" data-go="login">Entrar</button>
+    </nav>
+  </footer>
 </div>
+
 
 <!-- ============ AUTH ============ -->
 <div id="auth" class="hidden">
