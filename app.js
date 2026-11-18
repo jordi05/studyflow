@@ -300,6 +300,7 @@ function showApp(email){
   $('#u-name').textContent=email;$('#u-av').textContent=(email[0]||'?').toUpperCase();
   syncSettingsUI();renderAll();
   setTimeout(()=>maybeStartTour(0),900);
+  setTimeout(maybeShowInstall,1200);
 }
 
 /* ---------- tour primera vez (driver.js) ---------- */
@@ -401,15 +402,24 @@ $('#drawer-bg').onclick=closeDrawer;
 /* ---------- instalar app ---------- */
 let deferredInstall=null;
 const ib=$('#install-banner');
-const ibHide=()=>ib.classList.add('hidden');
+const ibHide=()=>{ib.classList.add('hidden');document.body.classList.remove('ib-on')};
 const ibDismiss=()=>{localStorage.setItem('sf_install_off','1');ibHide()};
 const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
 const isIOS=()=>/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+let ibScrolled=false;
+function ibShow(msg,go){
+  $('#ib-msg').textContent=msg;
+  $('#ib-go').classList.toggle('hidden',!go);
+  ib.classList.remove('hidden');document.body.classList.add('ib-on');
+}
 function maybeShowInstall(){
   if(localStorage.getItem('sf_install_off')==='1'||isStandalone())return;
-  if(deferredInstall){$('#ib-msg').textContent='Ábrela como app, sin barra del navegador.';$('#ib-go').classList.remove('hidden');ib.classList.remove('hidden')}
-  else if(isIOS()){$('#ib-msg').textContent='Pulsa Compartir y luego «Añadir a pantalla de inicio».';$('#ib-go').classList.add('hidden');ib.classList.remove('hidden')}
+  const landingOn=$('#landing')&&!$('#landing').classList.contains('hidden');
+  if(landingOn&&!ibScrolled)return;
+  if(deferredInstall)ibShow('Ábrela como app, sin barra del navegador.',true);
+  else if(isIOS())ibShow('Pulsa Compartir y luego «Añadir a pantalla de inicio».',false);
 }
+window.addEventListener('scroll',()=>{if(!ibScrolled){ibScrolled=true;setTimeout(maybeShowInstall,600)}},{passive:true});
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstall=e;maybeShowInstall()});
 window.addEventListener('appinstalled',()=>{ibDismiss()});
 $('#ib-x').onclick=ibDismiss;
