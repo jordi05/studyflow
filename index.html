@@ -370,31 +370,42 @@ select option:checked{background:var(--acc-dim)}
 :root{accent-color:var(--acc)}
 
 /* ---------- landing ---------- */
-#landing{min-height:100dvh;display:flex;flex-direction:column;align-items:center;gap:0;position:relative;overflow-x:clip}
-#landing::before{content:"";position:absolute;top:-180px;left:50%;transform:translateX(-50%);width:900px;height:520px;background:radial-gradient(ellipse at center,color-mix(in srgb,var(--acc) 13%,transparent),transparent 65%);pointer-events:none;z-index:0}
-.ln-nav{position:sticky;top:0;z-index:20;width:100%;max-width:1020px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 20px;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+#landing{min-height:100dvh;display:flex;flex-direction:column;align-items:center;gap:0;position:relative;overflow-x:clip;background:linear-gradient(180deg,#0c1f15 0%,#081209 34%,#070a09 72%)}
+#landing::before{content:"";position:absolute;top:-180px;left:50%;transform:translateX(-50%);width:1000px;height:560px;background:radial-gradient(ellipse at center,color-mix(in srgb,var(--acc) 20%,transparent),transparent 65%);pointer-events:none;z-index:0}
+.ln-nav{position:sticky;top:0;z-index:20;width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 20px;background:color-mix(in srgb,#0a1810 78%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 .ln-nav .brand{margin:0}
+.ln-nav>*{max-width:1020px}
 .ln-links{display:flex;gap:22px}
 .ln-links a{color:var(--mut);font-size:13px;font-weight:600}
 .ln-links a:hover{color:var(--txt)}
 .ln-nav-cta{display:flex;gap:8px;align-items:center}
 .ln-nav-cta .btn{padding:8px 14px;font-size:13px}
 .ln-wrap{width:100%;max-width:1020px;padding:0 20px;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
-.ln-hero{max-width:700px;text-align:center;display:flex;flex-direction:column;gap:18px;align-items:center;padding:76px 0 30px}
-.ln-chip{font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--acc);border:1px solid var(--acc-dim);border-radius:999px;padding:6px 14px;background:color-mix(in srgb,var(--acc) 8%,transparent)}
-.ln-hero h1{font-size:clamp(31px,4.8vw,48px);line-height:1.13;font-weight:800;letter-spacing:-.5px}
-.ln-hero h1 span{color:var(--acc)}
-.ln-hero p{color:var(--mut);font-size:16px;line-height:1.6;max-width:560px}
+.ln-hero{max-width:720px;text-align:center;display:flex;flex-direction:column;gap:18px;align-items:center;padding:80px 0 30px}
+.ln-chip{font-family:var(--mono);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--acc);border:1px solid var(--acc-dim);border-radius:999px;padding:6px 14px;background:color-mix(in srgb,var(--acc) 10%,transparent);box-shadow:0 0 30px -10px color-mix(in srgb,var(--acc) 45%,transparent)}
+.ln-hero h1{font-size:clamp(31px,4.8vw,50px);line-height:1.13;font-weight:800;letter-spacing:-.5px}
+.ln-hero h1 span{background:linear-gradient(92deg,#34d399,#4ea1ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ln-hero p{color:#a9bcaf;font-size:16px;line-height:1.6;max-width:560px}
 .ln-ctas{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:4px}
 .ln-ctas .btn{padding:13px 22px;font-size:15px}
+#landing .btn:not(.ghost){box-shadow:0 10px 30px -10px color-mix(in srgb,var(--acc) 55%,transparent)}
 .ln-mini{font-size:12px;color:var(--mut);font-family:var(--mono)}
 .ln-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;margin:26px 0 10px}
-.ln-strip div{display:flex;align-items:center;justify-content:center;gap:9px;border:1px solid var(--line);border-radius:12px;padding:11px 14px;color:var(--mut);font-size:12.5px;font-weight:600;background:color-mix(in srgb,var(--panel) 55%,transparent)}
-.ln-strip svg{width:16px;height:16px;stroke:var(--acc);flex:none}
+.ln-strip div{display:flex;align-items:center;justify-content:center;gap:9px;border:1px solid var(--line);border-radius:12px;padding:11px 14px;font-size:12.5px;font-weight:600;color:#b9c8bd}
+.ln-strip div:nth-child(1){background:color-mix(in srgb,#34d399 7%,transparent);border-color:color-mix(in srgb,#34d399 25%,transparent)}
+.ln-strip div:nth-child(1) svg{stroke:#34d399}
+.ln-strip div:nth-child(2){background:color-mix(in srgb,#4ea1ff 7%,transparent);border-color:color-mix(in srgb,#4ea1ff 25%,transparent)}
+.ln-strip div:nth-child(2) svg{stroke:#4ea1ff}
+.ln-strip div:nth-child(3){background:color-mix(in srgb,#c084fc 7%,transparent);border-color:color-mix(in srgb,#c084fc 25%,transparent)}
+.ln-strip div:nth-child(3) svg{stroke:#c084fc}
+.ln-strip svg{width:16px;height:16px;flex:none}
 .ln-sec{width:100%;display:flex;flex-direction:column;gap:20px;align-items:center;padding:64px 0 8px;scroll-margin-top:72px}
 .ln-sec h2{font-size:clamp(22px,3vw,30px);font-weight:800;text-align:center;letter-spacing:-.3px}
 .ln-sub{color:var(--mut);font-size:14px;text-align:center;max-width:520px;margin-top:-10px}
-.ln-frame{width:100%;max-width:860px;background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 30px 80px -30px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.04)}
+.ln-band{width:100%;border-block:1px solid var(--line)}
+.ln-band.g{background:linear-gradient(180deg,color-mix(in srgb,#34d399 5%,#080d0a),color-mix(in srgb,#34d399 2%,#080d0a))}
+.ln-band.b{background:linear-gradient(180deg,color-mix(in srgb,#4ea1ff 4%,#080d0c),color-mix(in srgb,#4ea1ff 1.5%,#080d0c))}
+.ln-frame{width:100%;max-width:860px;background:var(--panel);border:1px solid var(--acc-dim);border-radius:18px;overflow:hidden;box-shadow:0 40px 100px -25px rgba(0,0,0,.85),0 0 90px -25px color-mix(in srgb,var(--acc) 40%,transparent),inset 0 1px 0 rgba(255,255,255,.05)}
 .ln-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel2)}
 .ln-dot{width:10px;height:10px;border-radius:50%;background:var(--line)}
 .ln-url{margin-left:8px;font-family:var(--mono);font-size:11px;color:var(--mut);border:1px solid var(--line);border-radius:8px;padding:3px 12px;background:var(--bg)}
@@ -406,8 +417,12 @@ select option:checked{background:var(--acc-dim)}
 .ln-cls.free{border-style:dashed;border-left-color:var(--line);border-left-width:1px;color:var(--mut);text-align:center;background:transparent}
 .ln-cap{font-size:12px;color:var(--mut);text-align:center}
 .ln-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%}
-.ln-step{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:10px}
-.ln-step em{font-style:normal;font-family:var(--mono);font-size:22px;color:var(--acc);font-weight:700}
+.ln-step{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:10px;transition:border-color .15s ease,transform .15s ease}
+.ln-step:hover{transform:translateY(-2px);border-color:var(--acc-dim)}
+.ln-step em{font-style:normal;font-family:var(--mono);font-size:22px;font-weight:700}
+.ln-step:nth-child(1) em{color:#34d399}
+.ln-step:nth-child(2) em{color:#4ea1ff}
+.ln-step:nth-child(3) em{color:#c084fc}
 .ln-step b{font-size:15px}
 .ln-step span{font-size:13px;color:var(--mut);line-height:1.5}
 .ln-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%}
@@ -416,9 +431,9 @@ select option:checked{background:var(--acc-dim)}
 .ln-f svg{width:20px;height:20px;stroke:var(--acc)}
 .ln-f b{font-size:14px}
 .ln-f span{font-size:12.5px;color:var(--mut);line-height:1.45}
-.ln-why{display:grid;grid-template-columns:1.1fr .9fr;gap:34px;width:100%;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:30px}
+.ln-why{display:grid;grid-template-columns:1.1fr .9fr;gap:34px;width:100%;align-items:center;background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 10%,var(--panel)),var(--panel) 55%);border:1px solid color-mix(in srgb,var(--acc) 30%,var(--line));border-radius:18px;padding:30px;box-shadow:0 20px 60px -30px rgba(0,0,0,.7)}
 .ln-why h2{text-align:left!important}
-.ln-why p{color:var(--mut);font-size:14px;line-height:1.65}
+.ln-why p{color:#a9bcaf;font-size:14px;line-height:1.65}
 .ln-why ul{list-style:none;display:flex;flex-direction:column;gap:12px}
 .ln-why li{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.5}
 .ln-why li svg{width:17px;height:17px;stroke:var(--acc);flex:none;margin-top:1px}
@@ -431,10 +446,10 @@ select option:checked{background:var(--acc-dim)}
 .ln-faq details[open] summary::after{transform:rotate(45deg)}
 .ln-faq details p{color:var(--mut);font-size:13px;line-height:1.6;padding:0 0 15px}
 .ln-faq a{color:var(--acc)}
-.ln-final{display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center;width:100%;padding:70px 0 60px}
-.ln-final h2{font-size:clamp(24px,3.4vw,34px);font-weight:800}
+.ln-final{display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center;width:100%;padding:80px 20px 70px;position:relative;background:radial-gradient(ellipse 700px 320px at 50% 60%,color-mix(in srgb,var(--acc) 13%,transparent),transparent 70%);border-top:1px solid var(--line)}
+.ln-final h2{font-size:clamp(24px,3.4vw,36px);font-weight:800}
 .ln-final .btn{padding:13px 24px;font-size:15px}
-.ln-foot{width:100%;border-top:1px solid var(--line);padding:22px 20px calc(26px + env(safe-area-inset-bottom));display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;color:var(--mut);font-size:12px;font-family:var(--mono)}
+.ln-foot{width:100%;border-top:1px solid var(--line);padding:22px 20px calc(26px + env(safe-area-inset-bottom));display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;color:var(--mut);font-size:12px;font-family:var(--mono);background:#060907}
 .ln-foot nav{display:flex;flex-direction:row;gap:18px;align-items:center}
 .ln-foot a{color:var(--mut)}
 .ln-foot a:hover{color:var(--txt)}
@@ -530,16 +545,20 @@ select option:checked{background:var(--acc-dim)}
       </div>
     </div>
   </section>
+  </div>
 
-  <section class="ln-sec">
+  <section class="ln-sec ln-band g">
+   <div class="ln-wrap">
     <h2>Empieza en tres pasos</h2>
     <div class="ln-steps">
       <div class="ln-step"><em>01</em><b>Crea tu cuenta</b><span>Email y contraseña, un minuto. Sin tarjeta y sin datos raros.</span></div>
       <div class="ln-step"><em>02</em><b>Monta tu horario</b><span>Cada asignatura con su color, sus entregas y sus exámenes.</span></div>
       <div class="ln-step"><em>03</em><b>Estudia y mide</b><span>Pomodoros, apuntes y medias. Todo se sincroniza solo entre tus dispositivos.</span></div>
     </div>
+   </div>
   </section>
 
+  <div class="ln-wrap">
   <section class="ln-sec" id="ln-funciones">
     <h2>Todo lo que llevas encima, ordenado</h2>
     <div class="ln-grid">
@@ -566,8 +585,10 @@ select option:checked{background:var(--acc-dim)}
       </ul>
     </div>
   </section>
+  </div>
 
-  <section class="ln-sec" id="ln-preguntas">
+  <section class="ln-sec ln-band b" id="ln-preguntas">
+   <div class="ln-wrap">
     <h2>Preguntas frecuentes</h2>
     <div class="ln-faq">
       <details><summary>¿Es gratis de verdad?</summary><p>Sí. Todo lo que ves es gratis y no hay plan de pago. StudyFlow es un proyecto personal, no un negocio.</p></details>
@@ -576,6 +597,7 @@ select option:checked{background:var(--acc-dim)}
       <details><summary>¿Funciona sin internet?</summary><p>Sí: la app guarda tus datos en el dispositivo y sincroniza con tu cuenta cuando vuelve la conexión.</p></details>
       <details><summary>¿Puedo borrar mi cuenta?</summary><p>Cuando quieras. Al borrarla se eliminan tus datos de la nube. No hay permanencia ni letra pequeña.</p></details>
     </div>
+   </div>
   </section>
 
   <section class="ln-final">
@@ -583,7 +605,6 @@ select option:checked{background:var(--acc-dim)}
     <button class="btn" data-go="reg">Crear cuenta gratis</button>
     <p class="ln-mini">Se instala como app en el móvil desde el navegador, sin tiendas.</p>
   </section>
-  </div>
 
   <footer class="ln-foot">
     <span>StudyFlow · fase 2 beta · hecho por un estudiante, para estudiantes</span>
