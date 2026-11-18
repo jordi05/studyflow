@@ -1,5 +1,5 @@
-const C = 'sf-v26';
-const A = ['./', './index.html', './app.js?v=25', './theme.js?v=6', './sb.js?v=2', './driver.js?v=1', './driver.css?v=2', './manifest.webmanifest', './icon.svg'];
+const C = 'sf-v27';
+const A = ['./', './index.html', './app.js?v=26', './theme.js?v=6', './sb.js?v=2', './driver.js?v=1', './driver.css?v=2', './manifest.webmanifest', './icon.svg'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(C).then(c => c.addAll(A)).then(() => self.skipWaiting()));
 });
