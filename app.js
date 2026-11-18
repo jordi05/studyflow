@@ -226,6 +226,7 @@ function cloudPush(){
 let authMode='login';
 function setAuthMode(m){
   authMode=m;
+  if(m==='reg')window._regT0=Date.now();
   $('#tab-login').classList.toggle('on',m==='login');
   $('#tab-reg').classList.toggle('on',m==='reg');
   $('#a-go').textContent=m==='login'?'Entrar':'Crear cuenta';
@@ -254,6 +255,10 @@ $('#form-auth').onsubmit=async e=>{
   if(!email||!pass){err('Completa todos los campos');return}
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){err('Escribe un email válido');return}
   if(pass.length<6){err('Contraseña de al menos 6 caracteres');return}
+  if(authMode==='reg'){
+    if($('#a-web').value){okMsg($('#a-err'),'Cuenta creada. Revisa tu email y pulsa el enlace para confirmarla.');$('#a-pass').value='';return}
+    if(window._regT0&&Date.now()-window._regT0<2500){err('Espera un par de segundos y vuelve a intentarlo.');return}
+  }
   $('#a-go').disabled=true;err('');
   try{
     const r=authMode==='reg'?await sbSignup(email,pass):await sbLogin(email,pass);
