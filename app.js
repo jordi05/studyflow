@@ -208,10 +208,18 @@ function blankData(){return {classes:[],deadlines:[],notes:[],grades:[],pomos:{t
 let me=null, data=null, isPro=false, cloudReady=false;
 function save(){store.saveData(me,data);cloudPush()}
 let cloudT=null;
+let toastT=null;
+function toast(msg){const t=$('#toast');if(!t)return;t.textContent=msg;t.classList.remove('hidden');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.add('hidden'),6000)}
 function cloudPush(){
   if(!me||typeof sbSaveData!=='function')return;
   clearTimeout(cloudT);
-  cloudT=setTimeout(()=>{sbSaveData(data).catch(()=>{})},800);
+  cloudT=setTimeout(async()=>{
+    let r=null;
+    try{r=await sbSaveData(data)}catch(e){}
+    if(r&&r.ok){cloudReady=true;return}
+    toast('No se pudo subir a la nube. Tus datos están a salvo en este navegador y se reintentará solo.');
+    setTimeout(()=>{if(me&&data)sbSaveData(data).then(r2=>{if(r2&&r2.ok)cloudReady=true}).catch(()=>{})},20000);
+  },800);
 }
 
 /* ---------- auth (Supabase, fase 2) ---------- */
@@ -221,6 +229,7 @@ function setAuthMode(m){
   $('#tab-login').classList.toggle('on',m==='login');
   $('#tab-reg').classList.toggle('on',m==='reg');
   $('#a-go').textContent=m==='login'?'Entrar':'Crear cuenta';
+  $('#a-pass').setAttribute('autocomplete',m==='reg'?'new-password':'current-password');
   $('#a-err').textContent='';$('#a-err').classList.remove('ok');
 }
 function showAuthPane(p){
@@ -348,6 +357,7 @@ async function enterCloud(user,isNew){
     try{
       const r=await sbLoadData();
       cloudReady=!!r.ok;
+      if(!r.ok)toast('No se pudieron cargar tus datos de la nube. Trabajas con la copia de este navegador.');
       if(r.ok&&r.payload){
         data=Object.assign(blankData(),r.payload);normalize();
         store.saveData(me,data);syncSettingsUI();renderAll();
@@ -356,7 +366,7 @@ async function enterCloud(user,isNew){
         if(local&&(local.classes.length||local.deadlines.length||local.notes.length)){sbSaveData(local).catch(()=>{})}
         else await offerMigration();
       }
-    }catch(ex){/* seguimos con la copia local */}
+    }catch(ex){toast('No se pudieron cargar tus datos de la nube. Trabajas con la copia de este navegador.')/* seguimos con la copia local */}
   }else{
     await offerMigration();
     cloudReady=true;
@@ -690,7 +700,7 @@ function renderGrades(){
       const iw=document.createElement('input');iw.className='gr-iweight';iw.inputMode='numeric';iw.placeholder='%';iw.setAttribute('aria-label','Peso en porcentaje');
       iw.value=it.weight||'';
       iw.onchange=()=>{const v=parseInt(iw.value,10);it.weight=Number.isFinite(v)?Math.max(0,Math.min(100,v)):0;save();renderGrades()};
-      const x=document.createElement('button');x.className='gr-ix';x.textContent='✕';x.title='Quitar';
+      const x=document.createElement('button');x.className='gr-ix';x.textContent='✕';x.title='Quitar';x.setAttribute('aria-label','Quitar evaluación');
       x.onclick=()=>{g.items=g.items.filter(y=>y.id!==it.id);save();renderGrades()};
       row.appendChild(iname);row.appendChild(igrade);row.appendChild(iw);row.appendChild(x);
       items.appendChild(row);
@@ -749,6 +759,7 @@ function renderDeadlines(){
     const row=document.createElement('div');row.className='dl-item'+(d.done?' done':'');
     const soon=!d.done&&left>0&&left<86400000, late=!d.done&&left<0;
     const ok=document.createElement('button');ok.className='dl-ok';ok.textContent=d.done?'✓':'';
+    ok.setAttribute('aria-label',d.done?'Marcar como pendiente':'Marcar como hecha');
     const grow=document.createElement('div');grow.className='grow';
     const bn=document.createElement('b');bn.textContent=String(d.name||'').slice(0,80);
     const when=document.createElement('span');when.className='dl-when';
@@ -760,6 +771,7 @@ function renderDeadlines(){
     grow.appendChild(bn);grow.appendChild(when);
     const lf=document.createElement('span');lf.className='dl-left'+(soon?' soon':'')+(late?' late':'');lf.textContent=d.done?'hecha':fmtLeft(left);
     const x=document.createElement('button');x.className='dl-x';x.textContent='✕';
+    x.setAttribute('aria-label','Borrar entrega');x.title='Borrar';
     row.appendChild(ok);row.appendChild(grow);row.appendChild(lf);row.appendChild(x);
     ok.onclick=()=>{d.done=!d.done;save();renderDeadlines()};
     x.onclick=async()=>{if(await ask({title:'¿Borrar esta entrega?',msg:String(d.name||'').slice(0,80)})){data.deadlines=data.deadlines.filter(y=>y.id!==d.id);save();renderDeadlines()}};
@@ -808,6 +820,7 @@ setInterval(()=>{if(!me)return;if(!$('#view-entregas').classList.contains('hidde
 
 /* ---------- cuenta ---------- */
 $('#u-av').onclick=()=>{$('#acc-err').textContent='';updateNtfBtn();$('#overlay-acc').classList.remove('hidden')};
+$('#u-av').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('#u-av').click()}};
 $('#acc-close').onclick=()=>$('#overlay-acc').classList.add('hidden');
 $('#overlay-acc').onclick=e=>{if(e.target.id==='overlay-acc')$('#overlay-acc').classList.add('hidden')};
 function sanitizeImport(d){
@@ -894,7 +907,7 @@ $$('.goal-row .step button').forEach(b=>b.onclick=()=>setGoal((parseInt($('#d-go
 $('#d-goal').onchange=e=>setGoal(e.target.value);
 function renderGoal(){
   const goal=data.settings.goal||0;
-  const k=new Date().toISOString().slice(0,10);
+  const k=dayKey();
   const today=data.pomos.mins[k]||0;
   const fill=$('#goal-fill'),txt=$('#goal-txt');
   txt.classList.toggle('done',goal>0&&today>=goal);
@@ -903,13 +916,14 @@ function renderGoal(){
   fill.style.width=pct+'%';
   txt.textContent=today+' / '+goal+' min'+(pct>=100?' · cumplido':'');
 }
+function dayKey(d){d=d||new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
 function renderPomoStats(){
   const ch=$('#pchart');if(!ch)return;ch.innerHTML='';
   const days=[];let max=1;
-  for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const v=data.pomos.mins[d.toISOString().slice(0,10)]||0;days.push({d,v});if(v>max)max=v}
-  const wd=['D','L','M','X','J','V','S'],todayKey=new Date().toISOString().slice(0,10);
+  for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const v=data.pomos.mins[dayKey(d)]||0;days.push({d,v});if(v>max)max=v}
+  const wd=['D','L','M','X','J','V','S'],todayKey=dayKey();
   days.forEach(o=>{
-    const col=document.createElement('div');col.className='pc-col'+(o.d.toISOString().slice(0,10)===todayKey?' today':'');
+    const col=document.createElement('div');col.className='pc-col'+(dayKey(o.d)===todayKey?' today':'');
     const num=document.createElement('span');num.className='pc-val';num.textContent=o.v||'';
     const bar=document.createElement('div');bar.className='pc-bar';bar.style.height=Math.max(2,Math.round(o.v/max*100))+'%';bar.title=o.v+' min';
     const lab=document.createElement('span');lab.className='pc-lab';lab.textContent=wd[o.d.getDay()];
@@ -917,7 +931,7 @@ function renderPomoStats(){
   });
   let streak=0,i=0;
   if(!(data.pomos.mins[todayKey]>0))i=1;
-  for(;i<400;i++){const d=new Date();d.setDate(d.getDate()-i);if((data.pomos.mins[d.toISOString().slice(0,10)]||0)>0)streak++;else break}
+  for(;i<400;i++){const d=new Date();d.setDate(d.getDate()-i);if((data.pomos.mins[dayKey(d)]||0)>0)streak++;else break}
   let best=0,bk='';Object.keys(data.pomos.mins).forEach(k=>{if((data.pomos.mins[k]||0)>best){best=data.pomos.mins[k];bk=k}});
   $('#pe-streak').innerHTML='';const s1=document.createElement('span');s1.textContent='racha: ';const s1b=document.createElement('b');s1b.textContent=streak+(streak===1?' día':' días');s1.appendChild(s1b);$('#pe-streak').appendChild(s1);
   const bb=$('#pe-best');bb.innerHTML='';const b1=document.createElement('span');b1.textContent='mejor día: ';const b1b=document.createElement('b');b1b.textContent=best?(best+' min · '+new Date(bk+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'short'})):'—';b1.appendChild(b1b);bb.appendChild(b1);
@@ -943,11 +957,11 @@ function renderPomo(){
   $('#time').textContent=mm+':'+ss;
   const pct=P.total?1-P.left/P.total:0;
   $('#dial').style.background='conic-gradient(var(--acc) '+(pct*360)+'deg, var(--panel2) 0deg)';
-  const todayKey=new Date().toISOString().slice(0,10);
+  const todayKey=dayKey();
   $('#st-today').textContent=data.pomos.days[todayKey]||0;
   $('#st-total').textContent=data.pomos.total;
   $('#st-min-today').textContent=data.pomos.mins[todayKey]||0;
-  let wk=0;for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);wk+=data.pomos.mins[d.toISOString().slice(0,10)]||0}
+  let wk=0;for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);wk+=data.pomos.mins[dayKey(d)]||0}
   $('#st-min-week').textContent=wk;
   $('#btn-start').textContent=P.running?'Pausar':'Iniciar';
   renderGoal();renderPomoStats();
@@ -955,12 +969,14 @@ function renderPomo(){
 $('#btn-start').onclick=()=>{
   if(P.running){stopTimer();renderPomo();return}
   P.running=true;
+  P.endAt=Date.now()+P.left*1000;
   P.int=setInterval(()=>{
-    P.left--;renderPomo();
+    P.left=Math.max(0,Math.round((P.endAt-Date.now())/1000));
+    renderPomo();
     if(P.left<=0){
       stopTimer();
       if(P.mode==='focus'){
-        const k=new Date().toISOString().slice(0,10);
+        const k=dayKey();
         const mins=Math.round(durFor('focus')/60);
         data.pomos.total++;data.pomos.days[k]=(data.pomos.days[k]||0)+1;
         data.pomos.mins[k]=(data.pomos.mins[k]||0)+mins;data.pomos.totalMin+=mins;
@@ -1006,7 +1022,7 @@ const sbS=typeof sbSession==='function'?sbSession():null;
 if(sbS&&sbS.user){
   me=sbS.user.id;data=store.data(me)||blankData();normalize();
   showApp(sbS.user.email||'');
-  sbLoadData().then(r=>{if(r.ok&&r.payload){data=Object.assign(blankData(),r.payload);normalize();store.saveData(me,data);syncSettingsUI();renderAll()}cloudReady=!!r.ok}).catch(()=>{});
+  sbLoadData().then(r=>{if(r.ok&&r.payload){data=Object.assign(blankData(),r.payload);normalize();store.saveData(me,data);syncSettingsUI();renderAll()}cloudReady=!!r.ok;if(!r.ok)toast('No se pudieron cargar tus datos de la nube. Trabajas con la copia de este navegador.')}).catch(()=>{toast('No se pudieron cargar tus datos de la nube. Trabajas con la copia de este navegador.')});
   sbLoadProfile().then(p=>{if(p.ok)isPro=p.pro}).catch(()=>{});
 }
 }
