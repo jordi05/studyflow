@@ -359,13 +359,115 @@ select option{background:var(--panel);color:var(--txt)}
 select option:checked{background:var(--acc-dim)}
 .subj-edit{padding-right:30px}
 :root{accent-color:var(--acc)}
+
+/* ---------- landing ---------- */
+#landing{min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:calc(18px + env(safe-area-inset-top)) 18px calc(30px + env(safe-area-inset-bottom));gap:44px}
+.ln-top{width:100%;max-width:960px;display:flex;align-items:center;justify-content:space-between}
+.ln-top .brand{margin:0}
+.ln-hero{max-width:640px;text-align:center;display:flex;flex-direction:column;gap:16px;align-items:center;margin-top:10px}
+.ln-hero h1{font-size:32px;line-height:1.2;font-weight:800}
+.ln-hero h1 span{color:var(--acc)}
+.ln-hero p{color:var(--mut);font-size:15px;line-height:1.55;max-width:520px}
+.ln-ctas{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.ln-ctas .btn{padding:12px 20px;font-size:15px}
+.ln-mini{font-size:12px;color:var(--mut);font-family:var(--mono)}
+.ln-sec{width:100%;max-width:960px;display:flex;flex-direction:column;gap:16px;align-items:center}
+.ln-sec h2{font-size:22px;font-weight:800;text-align:center}
+.ln-sched{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px;box-shadow:0 24px 60px -20px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.04)}
+.ln-day{display:flex;flex-direction:column;gap:8px;min-width:0}
+.ln-day>b{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;text-align:center;font-weight:700}
+.ln-cls{border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:10px;padding:8px 9px;background:var(--panel2);font-size:12px;line-height:1.35;min-width:0}
+.ln-cls i{font-style:normal;display:block;color:var(--mut);font-size:11px;font-family:var(--mono)}
+.ln-cls.free{border-style:dashed;border-left-color:var(--line);border-left-width:1px;color:var(--mut);text-align:center;background:transparent}
+.ln-cap{font-size:12px;color:var(--mut);text-align:center}
+.ln-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%}
+.ln-f{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.ln-f svg{width:20px;height:20px;stroke:var(--acc)}
+.ln-f b{font-size:14px}
+.ln-f span{font-size:12.5px;color:var(--mut);line-height:1.45}
+.ln-final{display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center}
+.ln-final .btn{padding:12px 22px;font-size:15px}
+.ln-foot{color:var(--mut);font-size:12px;font-family:var(--mono);text-align:center}
+@media (max-width:760px){
+  .ln-hero h1{font-size:26px}
+  .ln-sched{grid-template-columns:repeat(2,1fr)}
+  .ln-grid{grid-template-columns:1fr 1fr}
+  #landing{gap:36px}
+}
+@media (max-width:430px){
+  .ln-grid{grid-template-columns:1fr}
+}
 </style>
 <script src="theme.js?v=6"></script>
 </head>
 <body>
 
+<!-- ============ LANDING ============ -->
+<div id="landing">
+  <div class="ln-top">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 20 6v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
+      <b>Study<span>Flow</span></b>
+    </div>
+    <button class="btn ghost" data-go="login">Entrar</button>
+  </div>
+
+  <section class="ln-hero">
+    <h1>Tu horario, tus apuntes y tu enfoque.<span> En un solo sitio.</span></h1>
+    <p>StudyFlow organiza la vida de estudiante: clases, entregas, apuntes, notas y pomodoros. Gratis, sin anuncios y con tus datos sincronizados en todos tus dispositivos.</p>
+    <div class="ln-ctas">
+      <button class="btn" data-go="reg">Crear cuenta gratis</button>
+      <button class="btn ghost" data-go="login">Ya tengo cuenta</button>
+    </div>
+    <p class="ln-mini">Sin tarjeta. Con tu email y una contraseña basta.</p>
+  </section>
+
+  <section class="ln-sec">
+    <h2>Así se ve tu semana</h2>
+    <div class="ln-sched">
+      <div class="ln-day"><b>Lun</b>
+        <div class="ln-cls" style="border-left-color:#3fb68b">Matemáticas<i>9:00 - 10:30</i></div>
+        <div class="ln-cls" style="border-left-color:#4ea1ff">Programación<i>11:00 - 13:00</i></div>
+      </div>
+      <div class="ln-day"><b>Mar</b>
+        <div class="ln-cls" style="border-left-color:#c084fc">Inglés<i>10:00 - 11:30</i></div>
+      </div>
+      <div class="ln-day"><b>Mié</b>
+        <div class="ln-cls" style="border-left-color:#f2c14e">Redes<i>9:00 - 11:00</i></div>
+      </div>
+      <div class="ln-day"><b>Jue</b>
+        <div class="ln-cls free">libre</div>
+      </div>
+      <div class="ln-day"><b>Vie</b>
+        <div class="ln-cls" style="border-left-color:#4ea1ff">Proyecto<i>9:30 - 11:00</i></div>
+      </div>
+    </div>
+    <p class="ln-cap">Esto es un ejemplo de la vista real del horario: tus clases, con sus colores, de un vistazo.</p>
+  </section>
+
+  <section class="ln-sec">
+    <h2>Todo lo que llevas encima, ordenado</h2>
+    <div class="ln-grid">
+      <div class="ln-f"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><b>Horario semanal</b><span>Tu semana de un vistazo, cada asignatura con su color.</span></div>
+      <div class="ln-f"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 6 2 4-1 4-1V3s-1 1-4 1-5-2-6-2-4 1-4 1z"/><path d="M4 22v-7"/></svg><b>Entregas</b><span>Trabajos y exámenes con su fecha límite y avisos antes de que venzan.</span></div>
+      <div class="ln-f"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><b>Apuntes</b><span>Notas por asignatura que se guardan solas mientras escribes.</span></div>
+      <div class="ln-f"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg><b>Notas y medias</b><span>Tu media al momento y lo que necesitas en lo que queda para aprobar.</span></div>
+      <div class="ln-f"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h4"/><path d="m12 14 3-3"/><circle cx="12" cy="14" r="8"/></svg><b>Pomodoro</b><span>Enfoque por rachas con tu cuenta de minutos, racha y objetivo diario.</span></div>
+      <div class="ln-f"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="8.5" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="7.5" r="1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="10" r="1" fill="currentColor" stroke="none"/><path d="M12 21c-1.5 0-2-1-1.2-2.2.7-1 .4-2.3-.8-2.3H8"/></svg><b>A tu gusto</b><span>Tema oscuro o claro y colores de la interfaz personalizables.</span></div>
+    </div>
+  </section>
+
+  <section class="ln-final">
+    <h2>Empieza en un minuto</h2>
+    <button class="btn" data-go="reg">Crear cuenta gratis</button>
+    <p class="ln-mini">Se instala como app en el móvil desde el navegador, sin tiendas.</p>
+  </section>
+
+  <footer class="ln-foot">StudyFlow · fase 2 beta · hecho por un estudiante, para estudiantes</footer>
+</div>
+
 <!-- ============ AUTH ============ -->
-<div id="auth">
+<div id="auth" class="hidden">
   <div class="auth-card">
     <div class="brand">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 20 6v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg>
@@ -398,6 +500,7 @@ select option:checked{background:var(--acc-dim)}
       <button class="btn" id="n-go" type="submit">Guardar contraseña</button>
     </form>
     <button class="btn ghost" id="btn-theme" style="width:100%;margin-top:10px">Personalizar colores</button>
+    <button class="linklike" id="a-back-landing" type="button" style="margin-top:8px">Volver a la presentación</button>
     <p class="foot">fase 2 beta · tus datos se sincronizan con tu cuenta</p>
   </div>
 </div>
@@ -705,6 +808,6 @@ select option:checked{background:var(--acc-dim)}
 <script data-goatcounter="https://studyflow.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <script src="driver.js?v=1"></script>
 <script src="sb.js?v=2"></script>
-<script src="app.js?v=24"></script>
+<script src="app.js?v=25"></script>
 </body>
   </html>
