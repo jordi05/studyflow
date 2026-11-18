@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Privacidad - StudyFlow</title>
+<meta name="description" content="Qué datos guarda StudyFlow, dónde y qué control tienes sobre ellos.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#070a09">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<style>
+:root{--bg:#070a09;--panel:#0d1310;--line:#1c2620;--acc:#34d399;--txt:#e7f0ea;--mut:#8aa395;--mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,'Segoe UI',Roboto,Inter,sans-serif;font-size:15px;line-height:1.6}
+.wrap{max-width:680px;margin:0 auto;padding:28px 20px 60px}
+a{color:var(--acc)}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:34px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--txt);font-weight:800;font-size:18px}
+.brand span{color:var(--acc)}
+.brand img{width:26px;height:26px}
+.back{font-size:13px;color:var(--mut);text-decoration:none;border:1px solid var(--line);border-radius:10px;padding:7px 13px}
+.back:hover{color:var(--txt)}
+h1{font-size:26px;margin-bottom:6px}
+.updated{color:var(--mut);font-size:12px;font-family:var(--mono);margin-bottom:28px}
+h2{font-size:16px;margin:26px 0 6px;color:var(--acc)}
+p,li{color:#c3d4c9;font-size:14.5px}
+ul{padding-left:20px}
+section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:14px}
+footer{margin-top:30px;text-align:center;color:var(--mut);font-size:12px;font-family:var(--mono)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="brand" href="/"><img src="icon.svg" alt="">Study<span>Flow</span></a>
+  <a class="back" href="/">Volver</a>
+</header>
+
+<h1>Privacidad</h1>
+<p class="updated">StudyFlow · fase 2 beta · última revisión: noviembre 2026</p>
+
+<section>
+<h2>Lo corto</h2>
+<p>StudyFlow es el proyecto de un estudiante. No hay anuncios, no vendemos datos y no te mandamos publicidad. Tus datos son tuyos: puedes exportarlos y puedes borrarlos.</p>
+</section>
+
+<section>
+<h2>Qué datos guarda</h2>
+<ul>
+<li><b>Tu cuenta:</b> tu email y tu contraseña (cifrada; nadie puede leerla, ni nosotros). Los gestiona Supabase, el servicio que da la parte de cuentas y base de datos.</li>
+<li><b>Lo que creas en la app:</b> horario, entregas, apuntes, notas y pomodoros. Se guardan en la base de datos de Supabase para sincronizar entre tus dispositivos, y en tu propio navegador para que la app vaya rápida y funcione aunque la nube falle.</li>
+<li><b>Estadísticas de visitas:</b> usamos GoatCounter, que no usa cookies ni recoge datos personales: solo páginas vistas, de dónde viene la visita y datos técnicos generales (tipo de navegador, tamaño de pantalla).</li>
+</ul>
+</section>
+
+<section>
+<h2>Qué no hace</h2>
+<ul>
+<li>No vende ni comparte tus datos con nadie con fines comerciales.</li>
+<li>No te envía publicidad. Los únicos correos son los de la cuenta: confirmar el email y recuperar la contraseña.</li>
+<li>No usa cookies de seguimiento.</li>
+</ul>
+</section>
+
+<section>
+<h2>Tu control</h2>
+<ul>
+<li><b>Exportar:</b> dentro de la app, en tu cuenta, puedes descargar todos tus datos en un archivo JSON.</li>
+<li><b>Borrar los datos de este navegador:</b> en tu cuenta, "Borrar mis datos".</li>
+<li><b>Borrar tu cuenta y tus datos de la nube:</b> abre una incidencia en <a href="https://github.com/jordi05/studyflow/issues">github.com/jordi05/studyflow/issues</a> desde la misma cuenta de GitHub o indica el email de tu cuenta, y se borran.</li>
+</ul>
+</section>
+
+<section>
+<h2>Seguridad</h2>
+<p>La base de datos aplica reglas de acceso por fila (RLS): cada cuenta solo puede leer y escribir sus propios datos, comprobado con pruebas automáticas. La conexión va cifrada (HTTPS) y la web aplica cabeceras de seguridad y una política de contenido (CSP) que bloquea scripts ajenos.</p>
+</section>
+
+<footer>StudyFlow · hecho por un estudiante, para estudiantes</footer>
+</div>
+</body>
+</html>
