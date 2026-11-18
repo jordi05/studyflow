@@ -55,6 +55,7 @@ h1,h2,h3{font-weight:650}
 .auth-tabs button{flex:1;padding:8px;border-radius:9px;color:var(--mut);font-weight:600}
 .auth-tabs button.on{background:var(--acc);color:#052e1f}
 .auth-card form{display:flex;flex-direction:column;gap:10px}
+.hp{position:absolute!important;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
 .btn{background:var(--acc);color:#052e1f;font-weight:700;border-radius:10px;padding:11px 14px}
 .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--txt)}
 .btn.warn{background:transparent;border:1px solid var(--danger);color:var(--danger)}
@@ -632,6 +633,7 @@ select option:checked{background:var(--acc-dim)}
     <form id="form-auth" novalidate>
       <input id="a-name" type="email" placeholder="Email" autocomplete="email" maxlength="60" required>
       <input id="a-pass" type="password" placeholder="Contraseña (mín. 6)" autocomplete="current-password" required>
+      <input id="a-web" type="text" name="web" placeholder="Tu web" tabindex="-1" autocomplete="off" aria-hidden="true" class="hp">
       <div class="err" id="a-err" role="alert"></div>
       <button class="btn" id="a-go" type="submit">Entrar</button>
       <button class="linklike" id="a-forgot" type="button">¿Olvidaste tu contraseña?</button>
@@ -962,6 +964,6 @@ select option:checked{background:var(--acc-dim)}
 <script data-goatcounter="https://studyflow.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <script src="driver.js?v=1"></script>
 <script src="sb.js?v=2"></script>
-<script src="app.js?v=28"></script>
+<script src="app.js?v=29"></script>
 </body>
   </html>
