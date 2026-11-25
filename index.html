@@ -480,6 +480,8 @@ select option:checked{background:var(--acc-dim)}
   body.ib-on{padding-bottom:78px}
   body.ib-on #toast{bottom:64px}
 }
+.guest-bar{display:flex;align-items:center;justify-content:center;gap:12px;padding:10px 20px;background:var(--panel2);border-bottom:1px solid var(--line);font-size:12px;flex-wrap:wrap}.guest-bar span{max-width:520px}
+@media(max-width:760px){#view-horario .view-head{flex-wrap:wrap}#view-horario .view-head h2{width:100%}.guest-bar{padding:8px 12px}.guest-bar .btn{font-size:11px}}
 </style>
 <script src="theme.js?v=6"></script>
 </head>
@@ -506,13 +508,13 @@ select option:checked{background:var(--acc-dim)}
   <div class="ln-wrap">
   <section class="ln-hero">
     <span class="ln-chip">Fase 2 beta · gratis para siempre</span>
-    <h1>Tu horario, tus apuntes y tu enfoque.<span> En un solo sitio.</span></h1>
-    <p>StudyFlow organiza la vida de estudiante: clases, entregas, apuntes, notas y pomodoros. Gratis, sin anuncios y con tus datos sincronizados en todos tus dispositivos.</p>
+    <h1>Horario, entregas y pomodoro.<span> En un solo sitio.</span></h1>
+    <p>Organiza tu semana sin saltar entre apps. Gratis y sin anuncios. Empieza sin registrarte; crea una cuenta solo si quieres sincronizar entre dispositivos.</p>
     <div class="ln-ctas">
-      <button class="btn" data-go="reg">Crear cuenta gratis</button>
+      <button class="btn" data-guest>Probar sin registro</button>
       <button class="btn ghost" data-go="login">Ya tengo cuenta</button>
     </div>
-    <p class="ln-mini">Sin tarjeta. Con tu email y una contraseña basta.</p>
+    <p class="ln-mini">Con un horario de ejemplo desde el primer segundo. Tus cambios se guardan en este navegador.</p>
   </section>
 
   <div class="ln-strip">
@@ -523,7 +525,7 @@ select option:checked{background:var(--acc-dim)}
 
   <section class="ln-sec" id="ln-preview">
     <h2>Así se ve tu semana</h2>
-    <p class="ln-sub">Nada de capturas retocadas: esto es la propia app, con un horario de ejemplo.</p>
+    <p class="ln-sub">Vista previa de un horario de ejemplo. Abre la app sin cuenta para editar el tuyo.</p>
     <div class="ln-frame">
       <div class="ln-bar"><span class="ln-dot"></span><span class="ln-dot"></span><span class="ln-dot"></span><span class="ln-url">studyflow · horario</span></div>
       <div class="ln-sched">
@@ -552,9 +554,9 @@ select option:checked{background:var(--acc-dim)}
    <div class="ln-wrap">
     <h2>Empieza en tres pasos</h2>
     <div class="ln-steps">
-      <div class="ln-step"><em>01</em><b>Crea tu cuenta</b><span>Email y contraseña, un minuto. Sin tarjeta y sin datos raros.</span></div>
+      <div class="ln-step"><em>01</em><b>Prueba sin registro</b><span>Abre un horario de ejemplo. Puedes cambiarlo y guardar tus datos en este navegador.</span></div>
       <div class="ln-step"><em>02</em><b>Monta tu horario</b><span>Cada asignatura con su color, sus entregas y sus exámenes.</span></div>
-      <div class="ln-step"><em>03</em><b>Estudia y mide</b><span>Pomodoros, apuntes y medias. Todo se sincroniza solo entre tus dispositivos.</span></div>
+      <div class="ln-step"><em>03</em><b>Estudia y mide</b><span>Pomodoros, apuntes y medias. Si quieres sincronizar, crea una cuenta gratis.</span></div>
     </div>
    </div>
   </section>
@@ -581,7 +583,7 @@ select option:checked{background:var(--acc-dim)}
       <ul>
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>Gratis de verdad, sin plan de pago escondido.</li>
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>Sin anuncios y sin vender tus datos.</li>
-        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>Puedes exportar o borrar tu cuenta cuando quieras.</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>Exporta tus datos desde Mi cuenta. Sin cuenta, se guardan solo en tu navegador.</li>
         <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>Código abierto: <a href="https://github.com/jordi05/studyflow" target="_blank" rel="noopener noreferrer">míralo en GitHub</a>.</li>
       </ul>
     </div>
@@ -594,16 +596,17 @@ select option:checked{background:var(--acc-dim)}
     <div class="ln-faq">
       <details><summary>¿Es gratis de verdad?</summary><p>Sí. Todo lo que ves es gratis y no hay plan de pago. StudyFlow es un proyecto personal, no un negocio.</p></details>
       <details><summary>¿Tengo que instalar algo?</summary><p>No: funciona en el navegador. Si quieres, puedes añadirla a la pantalla de inicio del móvil y se abre como una app, sin tiendas de por medio.</p></details>
-      <details><summary>¿Dónde se guardan mis datos?</summary><p>En tu cuenta, gestionada con Supabase (cifrado en tránsito y contraseña cifrada), y una copia en tu propio dispositivo para que la app vaya rápida. Tienes los detalles en la <a href="privacidad.html">página de privacidad</a>.</p></details>
-      <details><summary>¿Funciona sin internet?</summary><p>Sí: la app guarda tus datos en el dispositivo y sincroniza con tu cuenta cuando vuelve la conexión.</p></details>
-      <details><summary>¿Puedo borrar mi cuenta?</summary><p>Cuando quieras. Al borrarla se eliminan tus datos de la nube. No hay permanencia ni letra pequeña.</p></details>
+      <details><summary>¿Dónde se guardan mis datos?</summary><p>Sin cuenta: solo en este navegador. Con cuenta: en Supabase para sincronizar, además de una copia local. No uses el modo sin cuenta en un dispositivo compartido y exporta una copia antes de borrar los datos del navegador. Tienes los detalles en la <a href="privacidad.html">página de privacidad</a>.</p></details>
+      <details><summary>¿Necesito registrarme?</summary><p>No. Puedes editar tu horario, guardar apuntes y usar el pomodoro sin cuenta. Para sincronizar entre dispositivos necesitas una cuenta gratis. Desde Mi cuenta puedes exportar una copia JSON.</p></details>
+      <details><summary>¿Funciona sin internet?</summary><p>Tras la primera carga, la app guarda una copia para trabajar sin conexión. La sincronización necesita una cuenta e internet.</p></details>
+      <details><summary>¿Puedo borrar mi cuenta?</summary><p>Puedes solicitarlo siguiendo las instrucciones de la página de privacidad. Borrar datos del navegador no elimina tu cuenta de la nube.</p></details>
     </div>
    </div>
   </section>
 
   <section class="ln-final">
     <h2>Empieza en un minuto</h2>
-    <button class="btn" data-go="reg">Crear cuenta gratis</button>
+    <button class="btn" data-guest>Probar sin registro</button>
     <p class="ln-mini">Se instala como app en el móvil desde el navegador, sin tiendas.</p>
   </section>
 
@@ -674,6 +677,7 @@ select option:checked{background:var(--acc-dim)}
     </div>
   </header>
 
+  <div id="guest-bar" class="guest-bar hidden"><span>Sin cuenta: solo en este navegador. Haz una copia desde Mi cuenta.</span><button class="btn ghost" id="guest-sync">Crear cuenta para sincronizar</button></div>
   <div class="shell">
   <aside id="sidenav">
     <nav>
@@ -692,6 +696,7 @@ select option:checked{background:var(--acc-dim)}
       <div class="view-head">
         <h2>Horario semanal</h2>
         <span class="sp"></span>
+        <button class="btn ghost" id="btn-share-cal" title="Descarga solo asignaturas y horas, repetidas 16 semanas en la hora local de quien lo importe">Exportar horario (.ics)</button>
         <button class="btn ghost" id="btn-sample-cal">Datos de ejemplo</button>
         <button class="btn" id="btn-add-class">+ Añadir clase</button>
       </div>
@@ -846,7 +851,7 @@ select option:checked{background:var(--acc-dim)}
 <div class="overlay hidden" id="overlay-acc">
   <div class="modal">
     <h3>Mi cuenta</h3>
-    <p class="mut" style="font-size:13px">Tus datos se guardan solo en este navegador. Exporta una copia si cambias de dispositivo.</p>
+    <p class="mut" id="acc-storage" style="font-size:13px"></p>
     <p class="mut" style="font-size:11px;margin-top:4px">StudyFlow v2.1.0</p>
     <div class="ntf-row">
       <span style="font-size:14px">Avisos (notificaciones)</span>
@@ -964,6 +969,6 @@ select option:checked{background:var(--acc-dim)}
 <script data-goatcounter="https://studyflow.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <script src="driver.js?v=1"></script>
 <script src="sb.js?v=2"></script>
-<script src="app.js?v=29"></script>
+<script src="app.js?v=30"></script>
 </body>
-  </html>
+</html>
