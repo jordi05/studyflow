@@ -211,7 +211,7 @@ let cloudT=null;
 let toastT=null;
 function toast(msg){const t=$('#toast');if(!t)return;t.textContent=msg;t.classList.remove('hidden');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.add('hidden'),6000)}
 function cloudPush(){
-  if(!me||typeof sbSaveData!=='function')return;
+  if(!me||me==='guest'||typeof sbSaveData!=='function')return;
   clearTimeout(cloudT);
   cloudT=setTimeout(async()=>{
     let r=null;
@@ -310,6 +310,10 @@ function normalize(){
   data.settings=Object.assign({focus:25,short:5,long:15,remindDef:null,goal:0},data.settings||{});
 }
 function showApp(email){
+  const guest=me==='guest';
+  $('#guest-bar').classList.toggle('hidden',!guest);
+  $('#acc-storage').textContent=guest?'Modo sin cuenta: datos solo en este navegador. Si borras sus datos, se pierden. Exporta una copia o crea una cuenta para sincronizar.':'Tu cuenta sincroniza con Supabase y mantiene una copia en este navegador. Puedes exportar tus datos en JSON.';
+
   $('#landing').classList.add('hidden');$('#auth').classList.add('hidden');$('#app').classList.remove('hidden');
   $('#u-name').textContent=email;$('#u-av').textContent=(email[0]||'?').toUpperCase();
   syncSettingsUI();renderAll();
@@ -319,7 +323,7 @@ function showApp(email){
 
 /* ---------- tour primera vez (driver.js) ---------- */
 function maybeStartTour(tries){
-  if(!me||!data)return;
+  if(!me||me==='guest'||!data)return;
   if(data.tourDone)return;
   if(!window.driver||!window.driver.js)return;
   if(!cloudReady){setTimeout(()=>maybeStartTour(0),2500);return}
@@ -351,6 +355,16 @@ function maybeStartTour(tries){
   if(typeof sbSaveData==='function')sbSaveData(data).catch(()=>{});
   drv.drive();
 }
+function enterGuest(){
+  if(typeof sbSession==='function'&&sbSession()){toast('Ya tienes una sesión abierta. Cierra sesión antes de usar el modo sin cuenta.');return}
+  clearTimeout(cloudT);me='guest';cloudReady=false;
+  data=store.data('guest');
+  if(!data){data=blankData();data.classes=SAMPLE_CAL.map((s,i)=>({...s,id:Date.now()+i,ex:1}));}
+  normalize();store.saveData(me,data);showApp('Sin cuenta');switchView('horario');
+}
+$$('[data-guest]').forEach(b=>b.onclick=enterGuest);
+$('#guest-sync').onclick=()=>{stopTimer();clearTimeout(cloudT);me=null;data=null;showAuth();showAuthPane('auth');setAuthMode('reg')};
+
 async function enterCloud(user,isNew){
   cloudReady=false;
   me=user.id;
@@ -379,6 +393,8 @@ async function enterCloud(user,isNew){
   sbLoadProfile().then(p=>{if(p.ok)isPro=p.pro}).catch(()=>{});
 }
 function findLegacyData(){
+  const guest=store.data('guest');
+  if(guest&&(guest.classes.length||guest.notes.length||guest.deadlines.length))return{name:'modo sin cuenta',d:guest};
   try{
     const users=store.users();
     const legacy=store.session();
@@ -398,7 +414,7 @@ async function offerMigration(){
   const r=await sbSaveData(data).catch(()=>null);
   if(!r||!r.ok)notice('Sin conexión','No se pudieron subir ahora. Se quedan en este navegador y se subirán en la próxima sincronización.');
 }
-$('#btn-out').onclick=async()=>{stopTimer();try{await sbLogout()}catch(e){}me=null;data=null;store.setSession(null);try{$$('.driver-popover').forEach(x=>x.remove());const dov=$('.driver-overlay');if(dov)dov.remove()}catch(e){}$('#app').classList.add('hidden');$('#auth').classList.remove('hidden');$('#a-pass').value='';showAuthPane('auth')};
+$('#btn-out').onclick=async()=>{stopTimer();clearTimeout(cloudT);try{await sbLogout()}catch(e){}me=null;data=null;store.setSession(null);try{$$('.driver-popover').forEach(x=>x.remove());const dov=$('.driver-overlay');if(dov)dov.remove()}catch(e){}$('#app').classList.add('hidden');$('#auth').classList.remove('hidden');$('#a-pass').value='';showAuthPane('auth')};
 
 /* ---------- nav ---------- */
 function switchView(v){
@@ -581,6 +597,22 @@ function syncSampleBtns(){
   set('#btn-sample-notes',data.notes.some(isSampleNote),'notes',seedNotes);
   set('#btn-sample-grades',data.grades.some(isSampleGrade),'grades',seedGrades);
 }
+
+/* Exporta solo el horario, nunca apuntes, email ni notas. */
+function calendarFile(){
+  if(!data.classes.length){toast('Añade al menos una clase para exportar el horario.');return}
+  const esc=s=>String(s).replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;');
+  const now=new Date(), monday=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  monday.setDate(monday.getDate()-((monday.getDay()+6)%7));
+  const stamp=(date,time)=>date.getFullYear()+String(date.getMonth()+1).padStart(2,'0')+String(date.getDate()).padStart(2,'0')+'T'+time.replace(':','')+'00';
+  const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//StudyFlow//Horario//ES','CALSCALE:GREGORIAN'];
+  data.classes.forEach((c,i)=>{const dt=new Date(monday);dt.setDate(dt.getDate()+Number(c.day));lines.push('BEGIN:VEVENT','UID:sf-'+Date.now()+'-'+i+'@studyflow','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,''),'DTSTART:'+stamp(dt,c.start),'DTEND:'+stamp(dt,c.end),'SUMMARY:'+esc(c.name),'RRULE:FREQ=WEEKLY;COUNT=16','END:VEVENT')});
+  lines.push('END:VCALENDAR');
+  const url=URL.createObjectURL(new Blob([lines.join('\r\n')+'\r\n'],{type:'text/calendar;charset=utf-8'}));
+  const link=document.createElement('a');link.href=url;link.download='studyflow-horario.ics';link.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
+  toast('Horario descargado: solo asignaturas y horas, 16 semanas. Revisa el archivo antes de enviarlo. Usa la hora local del calendario que lo importe.');
+}
+$('#btn-share-cal').onclick=calendarFile;
 
 /* ---------- apuntes ---------- */
 let curNote=null, saveT=null;
